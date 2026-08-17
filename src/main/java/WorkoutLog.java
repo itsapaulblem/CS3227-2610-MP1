@@ -76,6 +76,24 @@ public class WorkoutLog {
     }
 
     /**
+     * Finds entries whose names contain the specified text, ignoring letter case.
+     *
+     * @param term the text to search for
+     * @return matching entries paired with their one-based positions in the full list
+     */
+    public List<EntryMatch> findByName(String term) {
+        String normalisedTerm = term.toLowerCase(Locale.ROOT);
+        List<EntryMatch> matches = new ArrayList<>();
+        for (int index = 0; index < entries.size(); index++) {
+            ExerciseEntry entry = entries.get(index);
+            if (entry.getName().toLowerCase(Locale.ROOT).contains(normalisedTerm)) {
+                matches.add(new EntryMatch(index + 1, entry));
+            }
+        }
+        return matches;
+    }
+
+    /**
      * Checks whether a candidate strictly improves on every other matching entry.
      *
      * @param candidate the entry being logged or edited
@@ -107,5 +125,14 @@ public class WorkoutLog {
      */
     private String normaliseExerciseName(String name) {
         return name.trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
+    }
+
+    /**
+     * Associates a matching entry with its one-based position in the full list.
+     *
+     * @param position the entry's one-based list position
+     * @param entry the matching entry
+     */
+    public record EntryMatch(int position, ExerciseEntry entry) {
     }
 }

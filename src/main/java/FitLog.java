@@ -82,6 +82,9 @@ public class FitLog {
         if (command.equals("log cardio") || command.startsWith("log cardio ")) {
             return parseLogCardioCommand(command, ui);
         }
+        if (command.equals("find") || command.startsWith("find ")) {
+            return parseFindCommand(command, ui);
+        }
 
         Command simpleCommand = parseSimpleCommand(command);
         if (simpleCommand != null) {
@@ -96,6 +99,22 @@ public class FitLog {
             ui.showMessage("I don't recognise that command. Use log, list, edit, delete, or bye.");
         }
         return null;
+    }
+
+    /**
+     * Parses a find command while preserving its established validation messages.
+     *
+     * @param command the raw find command
+     * @param ui the console UI for parse error messages
+     * @return the parsed find command, or {@code null} when invalid
+     */
+    private static FindCommand parseFindCommand(String command, Ui ui) {
+        String searchTerm = command.substring("find".length()).trim();
+        if (searchTerm.isEmpty()) {
+            ui.showMessage("Specify a search term to find.");
+            return null;
+        }
+        return new FindCommand(searchTerm);
     }
 
     /**
@@ -196,6 +215,19 @@ public class FitLog {
                 printPrNotification(entry, ui);
             }
             saveEntries(storage, entries, ui);
+            yield false;
+        }
+        case FindCommand findCommand -> {
+            var matches = entries.findByName(findCommand.searchTerm());
+            if (matches.isEmpty()) {
+                ui.showMessage("No entries match '" + findCommand.searchTerm() + "'.");
+            } else {
+                for (WorkoutLog.EntryMatch match : matches) {
+                    ExerciseEntry entry = match.entry();
+                    ui.showMessage(match.position() + ". [" + entry.getTypeLabel() + "] "
+                            + entry.getName() + " - " + entry.getDetails());
+                }
+            }
             yield false;
         }
         };
