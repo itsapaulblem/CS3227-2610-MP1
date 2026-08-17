@@ -1,7 +1,10 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     application
     java
     id("org.openjfx.javafxplugin") version "0.1.0"
+    id("com.gradleup.shadow") version "9.6.1"
 }
 
 repositories {
@@ -34,4 +37,8 @@ javafx {
 
 tasks.named<JavaExec>("run") {
     standardInput = System.`in`
+}
+
+tasks.named<ShadowJar>("shadowJar") {
+    archiveFileName.set("fitlog.jar")
 }
