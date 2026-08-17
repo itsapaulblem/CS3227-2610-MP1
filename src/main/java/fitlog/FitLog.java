@@ -269,18 +269,10 @@ public class FitLog {
             yield false;
         }
         case VolumeCommand ignored -> {
-            double strengthVolume = 0;
-            int cardioDuration = 0;
-            for (ExerciseEntry entry : entries.getEntries()) {
-                if (entry instanceof StrengthEntry strengthEntry) {
-                    strengthVolume += strengthEntry.getSets() * strengthEntry.getReps() * strengthEntry.getWeightKg();
-                } else if (entry instanceof CardioEntry cardioEntry) {
-                    cardioDuration += cardioEntry.getDurationMinutes();
-                }
-            }
+            WorkoutLog.TrainingTotals totals = entries.calculateTotals();
             ui.showMessage("Totals for all currently loaded entries:");
-            ui.showMessage("Strength volume: " + ExerciseEntry.formatNumber(strengthVolume) + " kg");
-            ui.showMessage("Cardio duration: " + cardioDuration + " min");
+            ui.showMessage("Strength volume: " + ExerciseEntry.formatNumber(totals.strengthVolume()) + " kg");
+            ui.showMessage("Cardio duration: " + totals.cardioDurationMinutes() + " min");
             yield false;
         }
         };

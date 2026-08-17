@@ -2,6 +2,7 @@ package fitlog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -119,5 +120,88 @@ class WorkoutLogTest {
         List<WorkoutLog.EntryMatch> matches = log.findByName("squat");
 
         assertTrue(matches.isEmpty());
+    }
+
+    @Test
+    void findByExerciseNameNormalisesNamesAndKeepsMixedTypesInLoggedOrder() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new StrengthEntry("Bench   Press", 3, 10, 80.0));
+        log.add(new CardioEntry("run", 30, 5.0));
+        log.add(new CardioEntry(" bench press ", 20, null));
+
+        List<WorkoutLog.EntryMatch> matches = log.findByExerciseName("BENCH PRESS");
+
+        assertEquals(2, matches.size());
+        assertEquals(1, matches.get(0).position());
+        assertInstanceOf(StrengthEntry.class, matches.get(0).entry());
+        assertEquals(3, matches.get(1).position());
+        assertInstanceOf(CardioEntry.class, matches.get(1).entry());
+    }
+
+    @Test
+    void findByExerciseNameReturnsEmptyWhenNothingMatches() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new StrengthEntry("bench press", 3, 10, 80.0));
+
+        List<WorkoutLog.EntryMatch> matches = log.findByExerciseName("squat");
+
+        assertTrue(matches.isEmpty());
+    }
+
+    @Test
+    void calculateTotalsSumsAllStrengthVolume() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new StrengthEntry("bench press", 3, 10, 80.0));
+        log.add(new StrengthEntry("squat", 3, 5, 100.0));
+
+        WorkoutLog.TrainingTotals totals = log.calculateTotals();
+
+        assertEquals(3900.0, totals.strengthVolume());
+        assertEquals(0, totals.cardioDurationMinutes());
+    }
+
+    @Test
+    void calculateTotalsSumsAllCardioDuration() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new CardioEntry("run", 30, 5.0));
+        log.add(new CardioEntry("cycle", 45, null));
+
+        WorkoutLog.TrainingTotals totals = log.calculateTotals();
+
+        assertEquals(0.0, totals.strengthVolume());
+        assertEquals(75, totals.cardioDurationMinutes());
+    }
+
+    @Test
+    void calculateTotalsCombinesStrengthAndCardioEntries() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new StrengthEntry("bench press", 3, 10, 80.0));
+        log.add(new CardioEntry("run", 30, 5.0));
+
+        WorkoutLog.TrainingTotals totals = log.calculateTotals();
+
+        assertEquals(2400.0, totals.strengthVolume());
+        assertEquals(30, totals.cardioDurationMinutes());
+    }
+
+    @Test
+    void calculateTotalsReturnsZeroForAnEmptyLog() {
+        WorkoutLog log = new WorkoutLog();
+
+        WorkoutLog.TrainingTotals totals = log.calculateTotals();
+
+        assertEquals(0.0, totals.strengthVolume());
+        assertEquals(0, totals.cardioDurationMinutes());
+    }
+
+    @Test
+    void calculateTotalsPreservesDecimalStrengthVolume() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new StrengthEntry("dumbbell curl", 1, 1, 82.55));
+
+        WorkoutLog.TrainingTotals totals = log.calculateTotals();
+
+        assertEquals(82.55, totals.strengthVolume());
+        assertEquals(0, totals.cardioDurationMinutes());
     }
 }

@@ -115,6 +115,24 @@ public class WorkoutLog {
     }
 
     /**
+     * Calculates training totals across every entry currently held by this log.
+     *
+     * @return the total strength volume and cardio duration
+     */
+    public TrainingTotals calculateTotals() {
+        double strengthVolume = 0;
+        int cardioDuration = 0;
+        for (ExerciseEntry entry : entries) {
+            if (entry instanceof StrengthEntry strengthEntry) {
+                strengthVolume += strengthEntry.getSets() * strengthEntry.getReps() * strengthEntry.getWeightKg();
+            } else if (entry instanceof CardioEntry cardioEntry) {
+                cardioDuration += cardioEntry.getDurationMinutes();
+            }
+        }
+        return new TrainingTotals(strengthVolume, cardioDuration);
+    }
+
+    /**
      * Checks whether a candidate strictly improves on every other matching entry.
      *
      * @param candidate the entry being logged or edited
@@ -155,5 +173,14 @@ public class WorkoutLog {
      * @param entry the matching entry
      */
     public record EntryMatch(int position, ExerciseEntry entry) {
+    }
+
+    /**
+     * Holds calculated totals for all entries in a workout log.
+     *
+     * @param strengthVolume the sum of sets × reps × weight for strength entries
+     * @param cardioDurationMinutes the sum of minutes for cardio entries
+     */
+    public record TrainingTotals(double strengthVolume, int cardioDurationMinutes) {
     }
 }

@@ -16,7 +16,7 @@ responsibilities:
 - `WorkoutLog` owns the in-memory `List<ExerciseEntry>`. It provides add, delete,
   replace, lookup, and listing operations, case-insensitive substring search with
   original list positions, normalised exact-name lookup for progression, and
-  collection-level PR comparison.
+  collection-level PR comparison and volume totals.
 - `Storage` owns file I/O only. It loads valid entries with per-line malformed-data
   warnings and saves a supplied list to disk; it does not print user messages.
 - `ExerciseEntry` is the shared abstraction for immutable `StrengthEntry` and
@@ -103,7 +103,7 @@ persistence behaviour:
 
 - `WorkoutLogTest` covers PR comparison (first entry, ties, lower values,
   normalised names, type separation, and edit exclusion) and search matching with
-  original positions.
+  original positions, normalised progression matching, and volume totals.
 - `StorageTest` covers loading valid strength/cardio lines, skipping malformed
   lines with warnings, save/load round trips, and parent-directory creation.
 - `ExerciseEntryTest` covers strength/cardio detail formatting and PR metric and
