@@ -112,8 +112,8 @@ Console output:
 
 ```text
 > list
-1. [Strength] bench press - 3 sets x 10 reps @ 80kg
-2. [Cardio] run - 30 min, 5km
+1. [Strength] bench press - 3 sets x 10 reps @ 80kg (logged 2026-08-17 09:30)
+2. [Cardio] run - 30 min, 5km (logged 2026-08-17 10:15)
 ```
 
 The GUI displays the same entry lines as information bubbles.
@@ -236,8 +236,8 @@ Console output:
 ```text
 > stats bench press
 Progression for bench press:
-1. [Strength] 80kg
-2. [Strength] 82.5kg
+1. [Strength] 80kg (logged 2026-08-17 09:30)
+2. [Strength] 82.5kg (logged 2026-08-17 11:00)
 ```
 
 The GUI displays the progression header and each result as information bubbles.
@@ -259,8 +259,8 @@ volume
 ```
 
 Expected outcome: shows total strength volume (`sets × reps × weight`) and total
-cardio duration. These are loaded-log totals, not weekly totals, because entries
-do not currently store dates or timestamps.
+cardio duration. These are loaded-log totals, not weekly totals, because FitLog
+does not yet filter entries by a date range.
 
 Console output:
 
@@ -309,5 +309,7 @@ window closes.
 - `/sets`, `/reps`, and `/duration` must be positive whole numbers. `/weight` and
   `/distance` must be finite numbers greater than zero when supplied.
 - FitLog saves successful log, edit, and delete operations to `data/fitlog.txt`.
+- Each new entry records its local logging time. `list` and `stats` show it as
+  `yyyy-MM-dd HH:mm`; edits preserve the original time.
 - The GUI uses green success, red error, amber warning, and gold PR feedback to
   make each response easy to identify.

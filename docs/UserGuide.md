@@ -104,15 +104,15 @@ Syntax:
 list
 ```
 
-Entries are shown in logging order with one-based numbers. Use those numbers with
-`edit` and `delete`.
+Entries are shown in logging order with one-based numbers and the local time
+when FitLog logged them. Use those numbers with `edit` and `delete`.
 
 Example:
 
 ```text
 > list
-1. [Strength] bench press - 3 sets x 10 reps @ 80kg
-2. [Cardio] run - 30 min, 5km
+1. [Strength] bench press - 3 sets x 10 reps @ 80kg (logged 2026-08-17 09:30)
+2. [Cardio] run - 30 min, 5km (logged 2026-08-17 10:15)
 ```
 
 ### Edit one field
@@ -186,15 +186,15 @@ stats <exercise name>
 
 FitLog finds entries whose names match after trimming, collapsing internal
 whitespace, and ignoring letter case. It displays matching entries in logged order
-with their actual list positions and type-specific PR metrics.
+with their actual list positions, type-specific PR metrics, and logging times.
 
 Example:
 
 ```text
 > stats bench press
 Progression for bench press:
-1. [Strength] 80kg
-2. [Strength] 82.5kg
+1. [Strength] 80kg (logged 2026-08-17 09:30)
+2. [Strength] 82.5kg (logged 2026-08-17 11:00)
 ```
 
 ### View all loaded totals
@@ -205,9 +205,10 @@ Syntax:
 volume
 ```
 
-This is not a weekly report: FitLog has no date or timestamp fields. It reports
-totals across all entries currently loaded from the log. Strength volume is the
-sum of `sets × reps × weight`; cardio duration is the sum of recorded minutes.
+This is not a weekly report: FitLog does not yet filter entries by a date range.
+It reports totals across all entries currently loaded from the log. Strength
+volume is the sum of `sets × reps × weight`; cardio duration is the sum of
+recorded minutes.
 
 Example:
 
@@ -272,11 +273,25 @@ New PR! Longest run: 45 min
 PR status is calculated from the current in-memory log each time; it is not stored
 on an entry. Deleting a former PR therefore does not leave stale PR state behind.
 
+## Logging times
+
+Every new strength or cardio entry records the local time when its `log` command
+is submitted. An `edit` preserves that original logging time. `list` and `stats`
+display the timestamp as `yyyy-MM-dd HH:mm`.
+
+FitLog does not yet support choosing a workout time or filtering entries by date
+range. The recorded time is therefore when FitLog received the command, which
+may differ from the time the activity was performed.
+
 ## Data persistence
 
 FitLog stores its data in `data/fitlog.txt`, relative to the directory where you
 run the application. The `data/` directory is created automatically when an entry
 is first saved.
+
+New saved lines include an ISO-8601 logging timestamp. Older saved lines without
+a timestamp still load successfully and display `time not recorded` in `list`
+and `stats`.
 
 Successful `log`, `edit`, and `delete` commands save the complete log immediately.
 `list` and `find` do not save because they do not change data.

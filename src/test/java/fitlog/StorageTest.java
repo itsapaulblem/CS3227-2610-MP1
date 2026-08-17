@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,7 @@ class StorageTest {
         assertEquals(3, entry.getSets());
         assertEquals(10, entry.getReps());
         assertEquals(80.0, entry.getWeightKg());
+        assertNull(entry.getLoggedAt());
         assertTrue(result.warnings().isEmpty());
     }
 
@@ -59,6 +61,7 @@ class StorageTest {
         assertEquals("run", entry.getName());
         assertEquals(30, entry.getDurationMinutes());
         assertEquals(5.0, entry.getDistanceKm());
+        assertNull(entry.getLoggedAt());
         assertTrue(result.warnings().isEmpty());
     }
 
@@ -75,6 +78,7 @@ class StorageTest {
         assertEquals("stationary bike", entry.getName());
         assertEquals(45, entry.getDurationMinutes());
         assertNull(entry.getDistanceKm());
+        assertNull(entry.getLoggedAt());
         assertTrue(result.warnings().isEmpty());
     }
 
@@ -141,6 +145,24 @@ class StorageTest {
         assertEquals("30 min, 5km", result.entries().get(1).getDetails());
         assertEquals("stationary bike", result.entries().get(2).getName());
         assertEquals("45 min", result.entries().get(2).getDetails());
+        assertTrue(result.warnings().isEmpty());
+    }
+
+    @Test
+    void saveThenLoadPreservesLoggingTimes(@TempDir Path tempDir) throws IOException {
+        Path file = tempDir.resolve("fitlog.txt");
+        Storage storage = new Storage(file);
+        LocalDateTime strengthTime = LocalDateTime.of(2026, 8, 17, 9, 15);
+        LocalDateTime cardioTime = LocalDateTime.of(2026, 8, 17, 18, 45, 30);
+        List<ExerciseEntry> entries = List.of(
+                new StrengthEntry("bench press", 3, 10, 82.5, strengthTime),
+                new CardioEntry("run", 30, 5.0, cardioTime));
+
+        storage.save(entries);
+        Storage.LoadResult result = storage.load();
+
+        assertEquals(strengthTime, result.entries().get(0).getLoggedAt());
+        assertEquals(cardioTime, result.entries().get(1).getLoggedAt());
         assertTrue(result.warnings().isEmpty());
     }
 

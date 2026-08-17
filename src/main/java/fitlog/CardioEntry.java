@@ -1,5 +1,7 @@
 package fitlog;
 
+import java.time.LocalDateTime;
+
 /**
  * Represents a cardio exercise with duration and an optional distance.
  */
@@ -15,7 +17,19 @@ public class CardioEntry extends ExerciseEntry {
      * @param distanceKm the distance in kilometres, or {@code null} when not recorded
      */
     public CardioEntry(String name, int durationMinutes, Double distanceKm) {
-        super(name);
+        this(name, durationMinutes, distanceKm, LocalDateTime.now());
+    }
+
+    /**
+     * Creates a cardio exercise entry with a specified logging time.
+     *
+     * @param name the exercise name
+     * @param durationMinutes the exercise duration in minutes
+     * @param distanceKm the distance in kilometres, or {@code null} when not recorded
+     * @param loggedAt the local logging time, or {@code null} for a legacy entry
+     */
+    public CardioEntry(String name, int durationMinutes, Double distanceKm, LocalDateTime loggedAt) {
+        super(name, loggedAt);
         this.durationMinutes = durationMinutes;
         this.distanceKm = distanceKm;
     }

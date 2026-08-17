@@ -211,8 +211,7 @@ public class FitLogController {
         case ListCommand ignored -> {
             for (int index = 0; index < entries.size(); index++) {
                 ExerciseEntry entry = entries.get(index);
-                ui.showInfo((index + 1) + ". [" + entry.getTypeLabel() + "] "
-                        + entry.getName() + " - " + entry.getDetails());
+                ui.showInfo(formatListEntry(index + 1, entry));
             }
             yield false;
         }
@@ -275,7 +274,7 @@ public class FitLogController {
                 for (WorkoutLog.EntryMatch match : matches) {
                     ExerciseEntry entry = match.entry();
                     ui.showInfo(match.position() + ". [" + entry.getTypeLabel() + "] "
-                            + formatStatsMetric(entry));
+                            + formatStatsMetric(entry) + " (logged " + entry.getLoggedAtDisplay() + ")");
                 }
             }
             yield false;
@@ -299,6 +298,18 @@ public class FitLogController {
     private static String formatStatsMetric(ExerciseEntry entry) {
         String metric = ExerciseEntry.formatNumber(entry.getPrMetric());
         return entry instanceof StrengthEntry ? metric + "kg" : metric + " min";
+    }
+
+    /**
+     * Formats an entry for the full-list view, including its recorded logging time.
+     *
+     * @param position the entry's one-based list position
+     * @param entry the entry to format
+     * @return the formatted list line
+     */
+    private static String formatListEntry(int position, ExerciseEntry entry) {
+        return position + ". [" + entry.getTypeLabel() + "] " + entry.getName() + " - " + entry.getDetails()
+                + " (logged " + entry.getLoggedAtDisplay() + ")";
     }
 
     /**
@@ -546,7 +557,8 @@ public class FitLogController {
      */
     private static StrengthEntry createStrengthEntryWithSets(StrengthEntry entry, String value, Ui ui) {
         Integer sets = parsePositiveWholeNumber(value, "/sets", ui);
-        return sets == null ? null : new StrengthEntry(entry.getName(), sets, entry.getReps(), entry.getWeightKg());
+        return sets == null ? null
+                : new StrengthEntry(entry.getName(), sets, entry.getReps(), entry.getWeightKg(), entry.getLoggedAt());
     }
 
     /**
@@ -558,7 +570,8 @@ public class FitLogController {
      */
     private static StrengthEntry createStrengthEntryWithReps(StrengthEntry entry, String value, Ui ui) {
         Integer reps = parsePositiveWholeNumber(value, "/reps", ui);
-        return reps == null ? null : new StrengthEntry(entry.getName(), entry.getSets(), reps, entry.getWeightKg());
+        return reps == null ? null
+                : new StrengthEntry(entry.getName(), entry.getSets(), reps, entry.getWeightKg(), entry.getLoggedAt());
     }
 
     /**
@@ -570,7 +583,8 @@ public class FitLogController {
      */
     private static StrengthEntry createStrengthEntryWithWeight(StrengthEntry entry, String value, Ui ui) {
         Double weightKg = parsePositiveNumber(value, "/weight", ui);
-        return weightKg == null ? null : new StrengthEntry(entry.getName(), entry.getSets(), entry.getReps(), weightKg);
+        return weightKg == null ? null : new StrengthEntry(entry.getName(), entry.getSets(), entry.getReps(), weightKg,
+                entry.getLoggedAt());
     }
 
     /**
@@ -583,7 +597,7 @@ public class FitLogController {
     private static CardioEntry createCardioEntryWithDuration(CardioEntry entry, String value, Ui ui) {
         Integer durationMinutes = parsePositiveWholeNumber(value, "/duration", ui);
         return durationMinutes == null ? null
-                : new CardioEntry(entry.getName(), durationMinutes, entry.getDistanceKm());
+                : new CardioEntry(entry.getName(), durationMinutes, entry.getDistanceKm(), entry.getLoggedAt());
     }
 
     /**
@@ -595,7 +609,8 @@ public class FitLogController {
      */
     private static CardioEntry createCardioEntryWithDistance(CardioEntry entry, String value, Ui ui) {
         Double distanceKm = parsePositiveNumber(value, "/distance", ui);
-        return distanceKm == null ? null : new CardioEntry(entry.getName(), entry.getDurationMinutes(), distanceKm);
+        return distanceKm == null ? null
+                : new CardioEntry(entry.getName(), entry.getDurationMinutes(), distanceKm, entry.getLoggedAt());
     }
 
     /**

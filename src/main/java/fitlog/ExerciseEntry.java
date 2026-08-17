@@ -1,18 +1,26 @@
 package fitlog;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * Represents one exercise logged in the current workout session.
  */
 public abstract class ExerciseEntry {
+    private static final DateTimeFormatter DISPLAY_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final String name;
+    private final LocalDateTime loggedAt;
 
     /**
      * Creates an entry for an exercise with the specified name.
      *
      * @param name the exercise name supplied by the user
+     * @param loggedAt the local time at which the entry was logged, or {@code null}
+     *                 for a legacy entry whose saved time is unknown
      */
-    public ExerciseEntry(String name) {
+    public ExerciseEntry(String name, LocalDateTime loggedAt) {
         this.name = name;
+        this.loggedAt = loggedAt;
     }
 
     /**
@@ -22,6 +30,24 @@ public abstract class ExerciseEntry {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Returns the local time at which this entry was logged.
+     *
+     * @return the logging time, or {@code null} for a legacy entry without a saved time
+     */
+    public LocalDateTime getLoggedAt() {
+        return loggedAt;
+    }
+
+    /**
+     * Returns the logging time in a compact display format.
+     *
+     * @return the formatted logging time, or {@code "time not recorded"} for a legacy entry
+     */
+    public String getLoggedAtDisplay() {
+        return loggedAt == null ? "time not recorded" : DISPLAY_TIME_FORMAT.format(loggedAt);
     }
 
     /**

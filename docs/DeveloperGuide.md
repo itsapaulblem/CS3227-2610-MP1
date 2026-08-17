@@ -27,7 +27,8 @@ and domain layer:
 - `Storage` owns file I/O only. It loads valid entries with per-line malformed-data
   warnings and saves a supplied list to disk; it does not print user messages.
 - `ExerciseEntry` is the shared abstraction for immutable `StrengthEntry` and
-  `CardioEntry` values. Each subtype supplies display details and its PR metric.
+  `CardioEntry` values. It stores the immutable exercise name and logging time;
+  each subtype supplies display details and its PR metric.
 - `Command` is a sealed interface. The command records are `ByeCommand`,
   `ListCommand`, `DeleteCommand`, `EditCommand`, `LogStrengthCommand`,
   `LogCardioCommand`, `FindCommand`, `StatsCommand`, and `VolumeCommand`. They
@@ -81,16 +82,18 @@ stale PR state; a later log or edit uses the then-current history.
 `Storage` writes one entry per line in UTF-8:
 
 ```text
-strength<TAB>name<TAB>sets<TAB>reps<TAB>weightKg
-cardio<TAB>name<TAB>durationMinutes<TAB>distanceKm
+strength<TAB>name<TAB>sets<TAB>reps<TAB>weightKg<TAB>loggedAt
+cardio<TAB>name<TAB>durationMinutes<TAB>distanceKm<TAB>loggedAt
 ```
 
-For cardio entries without a distance, the final field is empty. Tabs make the
-file both human-readable and simple to parse. This is safe under the current name
-parser because it rebuilds names from whitespace-split tokens, so names cannot
-contain literal tabs. `Storage.save` writes a temporary file and then replaces the
-data file atomically when supported, falling back to a normal replacement when it
-is not.
+`loggedAt` is an ISO-8601 `LocalDateTime` representing when FitLog received the
+log command. For cardio entries without a distance, the distance field is empty.
+Older strength and cardio lines without the final timestamp field remain valid
+and load with an unknown time. Tabs make the file both human-readable and simple
+to parse. This is safe under the current name parser because it rebuilds names
+from whitespace-split tokens, so names cannot contain literal tabs. `Storage.save`
+writes a temporary file and then replaces the data file atomically when supported,
+falling back to a normal replacement when it is not.
 
 ## Testing
 
@@ -135,7 +138,12 @@ persistence behaviour:
 - `StorageTest` covers loading valid strength/cardio lines, skipping malformed
   lines with warnings, save/load round trips, and parent-directory creation.
 - `ExerciseEntryTest` covers strength/cardio detail formatting and PR metric and
-  description formatting, including whole and decimal measurements.
+  description formatting, including whole and decimal measurements and logging-
+  time display.
+- `StorageTest` also covers timestamp round trips and backward-compatible loading
+  of timestamp-less legacy lines.
+- `FitLogControllerTest` covers timestamp preservation during edits and timestamp
+  display in `list` and `stats` output.
 
 `docs/pre-refactor-transcript.md` is the manual regression baseline for console
 behaviour: command parsing, user-facing validation messages, edit/delete flows,

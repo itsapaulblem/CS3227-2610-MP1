@@ -1,6 +1,9 @@
 package fitlog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,6 +11,32 @@ import org.junit.jupiter.api.Test;
  * Tests formatting and personal-record values supplied by exercise entry types.
  */
 class ExerciseEntryTest {
+
+    @Test
+    void loggedAtDisplayUsesReadableMinutePrecision() {
+        StrengthEntry entry = new StrengthEntry("bench press", 3, 10, 80.0,
+                LocalDateTime.of(2026, 8, 17, 17, 30, 45));
+
+        String loggingTime = entry.getLoggedAtDisplay();
+
+        assertEquals("2026-08-17 17:30", loggingTime);
+    }
+
+    @Test
+    void legacyEntryDisplaysUnknownLoggingTime() {
+        CardioEntry entry = new CardioEntry("run", 30, null, null);
+
+        String loggingTime = entry.getLoggedAtDisplay();
+
+        assertEquals("time not recorded", loggingTime);
+    }
+
+    @Test
+    void newEntryReceivesAutomaticLoggingTime() {
+        StrengthEntry entry = new StrengthEntry("bench press", 3, 10, 80.0);
+
+        assertNotNull(entry.getLoggedAt());
+    }
 
     @Test
     void strengthDetailsFormatsWholeNumberWeightWithoutDecimal() {

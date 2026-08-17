@@ -4,6 +4,10 @@ This document records the expected console behaviour before the UI extraction.
 Each section starts a fresh FitLog session unless stated otherwise. Lines beginning
 with `>` are commands entered by the user.
 
+Entries now record their logging time automatically. In list and stats output,
+replace `<logged timestamp>` below with the locally generated `yyyy-MM-dd HH:mm`
+time for the command being tested.
+
 For the non-persistence sections, run each session with a fresh `data/` directory
 so entries from an earlier scenario do not affect the result.
 
@@ -17,8 +21,8 @@ Logged: bench press - 3 sets x 10 reps @ 80kg
 > log cardio run /duration 30 /distance 5
 Logged: run - 30 min, 5km
 > list
-1. [Strength] bench press - 3 sets x 10 reps @ 80kg
-2. [Cardio] run - 30 min, 5km
+1. [Strength] bench press - 3 sets x 10 reps @ 80kg (logged <logged timestamp>)
+2. [Cardio] run - 30 min, 5km (logged <logged timestamp>)
 > bye
 Goodbye! Keep training.
 ```
@@ -112,8 +116,8 @@ Logged: Bench Press - 3 sets x 8 reps @ 82.5kg
 New PR! Heaviest Bench Press: 82.5kg
 > stats bench press
 Progression for bench press:
-1. [Strength] 80kg
-2. [Strength] 82.5kg
+1. [Strength] 80kg (logged <logged timestamp>)
+2. [Strength] 82.5kg (logged <logged timestamp>)
 ```
 
 The same normalised name can have mixed strength and cardio history; the type
@@ -126,8 +130,8 @@ Logged: circuit - 3 sets x 10 reps @ 40kg
 Logged: Circuit - 20 min
 > stats circuit
 Progression for circuit:
-1. [Strength] 40kg
-2. [Cardio] 20 min
+1. [Strength] 40kg (logged <logged timestamp>)
+2. [Cardio] 20 min (logged <logged timestamp>)
 ```
 
 Error cases:
@@ -197,8 +201,8 @@ After restarting from the same directory:
 Welcome to FitLog!
 What would you like to log today?
 > list
-1. [Strength] bench press - 3 sets x 10 reps @ 80kg
-2. [Cardio] run - 30 min, 5km
+1. [Strength] bench press - 3 sets x 10 reps @ 80kg (logged <logged timestamp>)
+2. [Cardio] run - 30 min, 5km (logged <logged timestamp>)
 > bye
 Goodbye! Keep training.
 ```
@@ -218,8 +222,8 @@ Welcome to FitLog!
 Warning: skipped malformed entry on line 2.
 What would you like to log today?
 > list
-1. [Strength] bench press - 3 sets x 10 reps @ 80kg
-2. [Cardio] run - 30 min, 5km
+1. [Strength] bench press - 3 sets x 10 reps @ 80kg (logged <logged timestamp>)
+2. [Cardio] run - 30 min, 5km (logged <logged timestamp>)
 > bye
 Goodbye! Keep training.
 ```

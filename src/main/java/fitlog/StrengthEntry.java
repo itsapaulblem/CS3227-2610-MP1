@@ -1,5 +1,7 @@
 package fitlog;
 
+import java.time.LocalDateTime;
+
 /**
  * Represents a strength exercise with sets, repetitions, and weight.
  */
@@ -17,7 +19,20 @@ public class StrengthEntry extends ExerciseEntry {
      * @param weightKg the weight used in kilograms
      */
     public StrengthEntry(String name, int sets, int reps, double weightKg) {
-        super(name);
+        this(name, sets, reps, weightKg, LocalDateTime.now());
+    }
+
+    /**
+     * Creates a strength exercise entry with a specified logging time.
+     *
+     * @param name the exercise name
+     * @param sets the number of sets performed
+     * @param reps the number of repetitions in each set
+     * @param weightKg the weight used in kilograms
+     * @param loggedAt the local logging time, or {@code null} for a legacy entry
+     */
+    public StrengthEntry(String name, int sets, int reps, double weightKg, LocalDateTime loggedAt) {
+        super(name, loggedAt);
         this.sets = sets;
         this.reps = reps;
         this.weightKg = weightKg;
