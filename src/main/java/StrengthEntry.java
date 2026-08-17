@@ -58,4 +58,14 @@ public class StrengthEntry extends ExerciseEntry {
         return sets + " sets x " + reps + " reps @ " + formatNumber(weightKg) + "kg";
     }
 
+    @Override
+    public double getPrMetric() {
+        return weightKg;
+    }
+
+    @Override
+    public String getPrDescription() {
+        return "Heaviest " + getName() + ": " + formatNumber(weightKg) + "kg";
+    }
+
 }

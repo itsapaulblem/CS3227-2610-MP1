@@ -37,6 +37,20 @@ public abstract class ExerciseEntry {
     public abstract String getDetails();
 
     /**
+     * Returns the numeric value used to compare entries for personal records.
+     *
+     * @return the personal-record comparison value
+     */
+    public abstract double getPrMetric();
+
+    /**
+     * Returns the type-specific text used in a personal-record notification.
+     *
+     * @return the personal-record notification text after its prefix
+     */
+    public abstract String getPrDescription();
+
+    /**
      * Formats a measurement without an unnecessary decimal fraction.
      *
      * @param value the measurement to format

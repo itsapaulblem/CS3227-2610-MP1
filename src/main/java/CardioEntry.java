@@ -47,4 +47,14 @@ public class CardioEntry extends ExerciseEntry {
         return distanceKm == null ? details : details + ", " + formatNumber(distanceKm) + "km";
     }
 
+    @Override
+    public double getPrMetric() {
+        return durationMinutes;
+    }
+
+    @Override
+    public String getPrDescription() {
+        return "Longest " + getName() + ": " + durationMinutes + " min";
+    }
+
 }

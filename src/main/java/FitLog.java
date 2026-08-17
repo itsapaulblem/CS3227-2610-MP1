@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -89,8 +90,12 @@ public class FitLog {
         }
 
         StrengthEntry entry = new StrengthEntry(details.name(), sets, reps, weightKg);
+        boolean isPersonalRecord = isPersonalRecord(entry, entries, -1);
         entries.add(entry);
         System.out.println("Logged: " + entry.getName() + " - " + entry.getDetails());
+        if (isPersonalRecord) {
+            printPrNotification(entry);
+        }
     }
 
     /**
@@ -118,8 +123,12 @@ public class FitLog {
         }
 
         CardioEntry entry = new CardioEntry(details.name(), durationMinutes, distanceKm);
+        boolean isPersonalRecord = isPersonalRecord(entry, entries, -1);
         entries.add(entry);
         System.out.println("Logged: " + entry.getName() + " - " + entry.getDetails());
+        if (isPersonalRecord) {
+            printPrNotification(entry);
+        }
     }
 
     /**
@@ -261,8 +270,12 @@ public class FitLog {
         if (updatedEntry == null) {
             return;
         }
+        boolean isPersonalRecord = isPersonalRecord(updatedEntry, entries, index);
         entries.set(index, updatedEntry);
         System.out.println("Updated: " + updatedEntry.getName() + " - " + updatedEntry.getDetails());
+        if (isPersonalRecord) {
+            printPrNotification(updatedEntry);
+        }
     }
 
     /**
@@ -377,6 +390,51 @@ public class FitLog {
             return null;
         }
         return entryNumber - 1;
+    }
+
+    /**
+     * Checks whether an entry strictly improves on every other matching entry.
+     *
+     * @param candidate the entry being logged or edited
+     * @param entries the current session's entries
+     * @param excludedIndex the entry to exclude during an edit, or {@code -1} when logging
+     * @return whether the candidate is a new personal record
+     */
+    private static boolean isPersonalRecord(ExerciseEntry candidate, List<ExerciseEntry> entries,
+            int excludedIndex) {
+        boolean hasPriorMatchingEntry = false;
+        String candidateName = normaliseExerciseName(candidate.getName());
+        for (int index = 0; index < entries.size(); index++) {
+            ExerciseEntry existingEntry = entries.get(index);
+            if (index == excludedIndex || existingEntry.getClass() != candidate.getClass()
+                    || !normaliseExerciseName(existingEntry.getName()).equals(candidateName)) {
+                continue;
+            }
+            hasPriorMatchingEntry = true;
+            if (candidate.getPrMetric() <= existingEntry.getPrMetric()) {
+                return false;
+            }
+        }
+        return hasPriorMatchingEntry;
+    }
+
+    /**
+     * Converts an exercise name into a consistent comparison key.
+     *
+     * @param name the exercise name to normalise
+     * @return a trimmed, whitespace-normalised, lowercase comparison key
+     */
+    private static String normaliseExerciseName(String name) {
+        return name.trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
+    }
+
+    /**
+     * Prints a personal-record notification for a newly established record.
+     *
+     * @param entry the entry that established the personal record
+     */
+    private static void printPrNotification(ExerciseEntry entry) {
+        System.out.println("New PR! " + entry.getPrDescription());
     }
 
     /**
