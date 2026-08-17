@@ -2,17 +2,24 @@
 
 ## Architecture
 
-FitLog is organised into a small command-line application with the following
-responsibilities:
+FitLog is organised into console and JavaFX entry points over a shared controller
+and domain layer:
 
 - `FitLog` is the console entry point. It reads console commands and passes them
   to a controller until the user exits or input ends.
+- `Launcher` is the plain Java entry point used by Gradle's `run` task. It calls
+  `Application.launch(FitLogGui.class, args)` rather than directly launching a
+  JavaFX `Application` subclass.
+- `FitLogGui` creates the JavaFX scene, wires Enter and Send-button events to the
+  controller, and closes the window shortly after a `bye` response.
 - `FitLogController` owns startup loading, command parsing, dispatch, the current
   `WorkoutLog`, and the `Storage` service. Its `start()` method emits the startup
   feedback, and `submit(String)` resolves and executes one command.
 - `Ui` is an output interface with separate information, success, error, warning,
   and PR feedback methods. `ConsoleUi` implements it with plain console output,
   owns the `Scanner`, prints the `> ` prompt, and returns `null` at end-of-file.
+- `GuiUi` implements `Ui` by rendering categorised messages as styled JavaFX
+  conversation bubbles and scrolling to the newest message.
 - `WorkoutLog` owns the in-memory `List<ExerciseEntry>`. It provides add, delete,
   replace, lookup, and listing operations, case-insensitive substring search with
   original list positions, normalised exact-name lookup for progression, and
@@ -27,10 +34,30 @@ responsibilities:
   represent successfully parsed commands; validation errors are reported during
   parsing before a command record is created.
 
-At runtime, `FitLog` reads through `ConsoleUi` and submits input to
-`FitLogController`. The controller resolves the input into a `Command`, uses
+At runtime, either `FitLog`/`ConsoleUi` or `Launcher`/`FitLogGui` supplies input
+to `FitLogController`. The controller resolves the input into a `Command`, uses
 `WorkoutLog` to perform collection operations, asks `Storage` to save successful
-mutations, and returns categorised feedback through `Ui`.
+mutations, and returns categorised feedback through the selected `Ui`.
+
+### GUI reuse after the controller refactor
+
+The `start()`/`submit(String)` controller design was deliberately introduced
+before the GUI. It replaces the former blocking console read loop with one-command
+operations that JavaFX event handlers can call directly. This allows the GUI to
+reuse the existing parsers, command records, validation messages, persistence, and
+command execution without duplicating command logic.
+
+`WorkoutLog`, `Storage`, `ExerciseEntry` and its subclasses, and the sealed
+`Command` hierarchy required zero changes to support the GUI. Only the UI layer
+and entry points differ between console and JavaFX execution.
+
+### JavaFX and Gradle setup
+
+`build.gradle.kts` applies the `org.openjfx.javafxplugin` Gradle plugin at version
+`0.1.0`, configures JavaFX `26.0.1`, and enables the `javafx.controls` module.
+The application main class is `fitlog.Launcher`. The separate launcher avoids the
+classpath issues that can occur when the Java launcher is asked to start a JavaFX
+`Application` subclass directly.
 
 ## Design decisions
 

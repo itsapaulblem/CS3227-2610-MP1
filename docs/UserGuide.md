@@ -1,10 +1,10 @@
 # FitLog User Guide
 
-FitLog is a command-line application for logging strength and cardio workouts.
-It keeps entries in a saved workout log, lets you list, edit, delete, and search
-them, and identifies personal records (PRs).
+FitLog is a workout logging application with both a JavaFX graphical interface
+and a console interface. It keeps entries in a saved workout log, lets you list,
+edit, delete, and search them, and identifies personal records (PRs).
 
-## Build and run
+## Build
 
 FitLog requires Java 25. From the project root, build the application with:
 
@@ -12,14 +12,48 @@ FitLog requires Java 25. From the project root, build the application with:
 ./gradlew build
 ```
 
-Run it with:
+## Run the graphical interface
+
+The default Gradle run task launches the JavaFX GUI through `fitlog.Launcher`:
 
 ```text
 ./gradlew run
 ```
 
 On PowerShell, use `./gradlew.bat build` and `./gradlew.bat run` if needed.
-The application displays a `> ` prompt for each command.
+
+The GUI contains:
+
+- a header with the FitLog title and subtitle;
+- a full-width, scrollable conversation view;
+- a command input field and **Send** button at the bottom.
+
+Enter commands in the input field and press Enter or click **Send**. The button is
+disabled while the input is blank. The GUI has no separate command language: use
+the exact same syntax documented in the [Commands](#commands) section below.
+
+Conversation cards provide feedback by category:
+
+- Green: successful log, edit, or delete operation.
+- Red: validation or command error.
+- Amber: non-fatal storage warning.
+- Gold: personal-record notification.
+- Blue: your submitted command.
+
+Typing `bye` displays the goodbye message, disables the input, and closes the
+window automatically after a short delay.
+
+## Run the console interface
+
+The console remains available, but `./gradlew run` no longer launches it. After
+building the project, start the `FitLog` class explicitly:
+
+```text
+java -cp build/classes/java/main fitlog.FitLog
+```
+
+The console displays a `> ` prompt for each command. Ensure the `java` command
+uses Java 25.
 
 ## Commands
 
