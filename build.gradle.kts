@@ -1,6 +1,7 @@
 plugins {
     application
     java
+    id("org.openjfx.javafxplugin") version "0.1.0"
 }
 
 repositories {
@@ -19,11 +20,16 @@ dependencies {
 }
 
 application {
-    mainClass.set("fitlog.FitLog")
+    mainClass.set("fitlog.Launcher")
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+
+javafx {
+    version = "26.0.1"
+    modules("javafx.controls")
 }
 
 tasks.named<JavaExec>("run") {
