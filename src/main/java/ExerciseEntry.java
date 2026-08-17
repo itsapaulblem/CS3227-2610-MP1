@@ -35,4 +35,14 @@ public abstract class ExerciseEntry {
      * @return the formatted exercise details
      */
     public abstract String getDetails();
+
+    /**
+     * Formats a measurement without an unnecessary decimal fraction.
+     *
+     * @param value the measurement to format
+     * @return the formatted measurement
+     */
+    protected String formatNumber(double value) {
+        return value == Math.rint(value) ? String.valueOf((long) value) : String.valueOf(value);
+    }
 }

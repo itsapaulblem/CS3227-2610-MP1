@@ -23,19 +23,28 @@ public class CardioEntry extends ExerciseEntry {
         return "Cardio";
     }
 
+    /**
+     * Returns the exercise duration in minutes.
+     *
+     * @return the duration in minutes
+     */
+    public int getDurationMinutes() {
+        return durationMinutes;
+    }
+
+    /**
+     * Returns the distance in kilometres, if it was recorded.
+     *
+     * @return the distance in kilometres, or {@code null} when not recorded
+     */
+    public Double getDistanceKm() {
+        return distanceKm;
+    }
+
     @Override
     public String getDetails() {
         String details = durationMinutes + " min";
         return distanceKm == null ? details : details + ", " + formatNumber(distanceKm) + "km";
     }
 
-    /**
-     * Formats a measurement without an unnecessary decimal fraction.
-     *
-     * @param value the measurement to format
-     * @return the formatted measurement
-     */
-    private String formatNumber(double value) {
-        return value == Math.rint(value) ? String.valueOf((long) value) : String.valueOf(value);
-    }
 }

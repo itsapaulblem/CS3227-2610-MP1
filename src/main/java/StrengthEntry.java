@@ -26,18 +26,36 @@ public class StrengthEntry extends ExerciseEntry {
         return "Strength";
     }
 
+    /**
+     * Returns the number of sets performed.
+     *
+     * @return the number of sets
+     */
+    public int getSets() {
+        return sets;
+    }
+
+    /**
+     * Returns the number of repetitions performed in each set.
+     *
+     * @return the number of repetitions
+     */
+    public int getReps() {
+        return reps;
+    }
+
+    /**
+     * Returns the weight used in kilograms.
+     *
+     * @return the weight in kilograms
+     */
+    public double getWeightKg() {
+        return weightKg;
+    }
+
     @Override
     public String getDetails() {
         return sets + " sets x " + reps + " reps @ " + formatNumber(weightKg) + "kg";
     }
 
-    /**
-     * Formats a measurement without an unnecessary decimal fraction.
-     *
-     * @param value the measurement to format
-     * @return the formatted measurement
-     */
-    private String formatNumber(double value) {
-        return value == Math.rint(value) ? String.valueOf((long) value) : String.valueOf(value);
-    }
 }
