@@ -1,5 +1,11 @@
 # Developer Guide
 
+## Document scope
+
+This guide describes the current FitLog release and should be updated whenever
+the product's architecture, behavior, dependencies, or development process
+changes.
+
 ## Architecture
 
 FitLog is organised into console and JavaFX entry points over a shared controller
@@ -55,11 +61,24 @@ and entry points differ between console and JavaFX execution.
 
 ### JavaFX and Gradle setup
 
-`build.gradle.kts` applies the `org.openjfx.javafxplugin` Gradle plugin at version
-`0.1.0`, configures JavaFX `26.0.1`, and enables the `javafx.controls` module.
-The application main class is `fitlog.Launcher`. The separate launcher avoids the
-classpath issues that can occur when the Java launcher is asked to start a JavaFX
-`Application` subclass directly.
+`build.gradle.kts` configures a Java 25 toolchain. It applies the
+`org.openjfx.javafxplugin` Gradle plugin at version `0.1.0`, configures JavaFX
+`26.0.1`, and enables the `javafx.controls` module. The application main class is
+`fitlog.Launcher`. The separate launcher avoids the classpath issues that can
+occur when the Java launcher is asked to start a JavaFX `Application` subclass
+directly.
+
+The GradleUp Shadow plugin is configured at version `9.6.1` and participates in
+the normal `build` lifecycle. Packaging produces two deliberately distinct JARs
+in `build/libs/`:
+
+- `fitlog.jar` is the all-in-one Shadow JAR containing runtime dependencies.
+- `FitLog-plain.jar` is the thin JAR produced by Gradle's standard `jar` task.
+
+The standard JAR uses the `plain` archive classifier so it does not share the
+same output path as `shadowJar`. Without distinct output names, Gradle detects
+implicit dependencies between `shadowJar`, `startScripts`, `distTar`, and
+`distZip` because those tasks would read and write the same `fitlog.jar` path.
 
 ## Design decisions
 
@@ -138,9 +157,10 @@ it remain in the returned `LoadResult`.
 FitLog's numeric option parsers are intentionally tested through transcript-based
 integration scenarios rather than direct unit tests. They report validation errors
 through `Ui`, so isolating them would require a wider result-object refactor across
-command parsing and editing. Their behavior is covered by the documented command
-transcripts, while focused unit tests cover the collection, persistence, and
-entry-formatting logic.
+command parsing and editing. Selected behavior is covered by the documented
+command transcripts, while focused unit tests cover the collection, persistence,
+and entry-formatting logic. The remaining numeric-parser coverage gaps are listed
+below.
 
 ### Numeric parser coverage
 
@@ -208,10 +228,15 @@ manual scenario when it changes command output or JavaFX interaction.
 
 This project was built with AI assistance from Codex. The student reviewed and
 guided the resulting design, implementation, tests, and documentation.
+Development logs in the [`logs/`](../logs/) directory record the prompts, design
+discussions, and code or documentation produced with Codex assistance.
 
 The project structure and command-oriented interaction style draw on the
 CS2103/T individual-project conventions referenced in the assignment brief.
 The graphical interface uses [OpenJFX](https://openjfx.io/) and its Gradle
 plugin. The build uses [Gradle](https://gradle.org/), automated tests use
-[JUnit 5](https://junit.org/junit5/), and the optional distributable JAR task
-uses the [GradleUp Shadow plugin](https://gradleup.com/shadow/).
+[JUnit 5](https://junit.org/junit5/), and distributable JAR packaging uses the
+[GradleUp Shadow plugin](https://gradleup.com/shadow/).
+
+Except for the tools, libraries, course conventions, and AI assistance cited
+above, no external code or documentation was reused.
