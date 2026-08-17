@@ -140,6 +140,9 @@ public class WorkoutLog {
      * @return whether the candidate is a new personal record
      */
     public boolean isPersonalRecord(ExerciseEntry candidate, int excludedIndex) {
+        // Logging passes -1, while edit execution passes an index already validated by parseEntryIndex.
+        assert excludedIndex == -1 || (excludedIndex >= 0 && excludedIndex < entries.size())
+                : "Excluded PR index must be -1 or refer to an existing entry.";
         boolean hasPriorMatchingEntry = false;
         String candidateName = normaliseExerciseName(candidate.getName());
         for (int index = 0; index < entries.size(); index++) {

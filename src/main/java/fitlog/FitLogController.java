@@ -217,6 +217,9 @@ public class FitLogController {
             yield false;
         }
         case DeleteCommand deleteCommand -> {
+            // parseDeleteCommand creates DeleteCommand only after parseEntryIndex validates this index.
+            assert deleteCommand.index() >= 0 && deleteCommand.index() < entries.size()
+                    : "DeleteCommand index must refer to an existing entry.";
             ExerciseEntry removedEntry = entries.delete(deleteCommand.index());
             ui.showSuccess("Removed: " + removedEntry.getName() + " - " + removedEntry.getDetails());
             saveEntries(storage, entries, ui);
@@ -336,6 +339,8 @@ public class FitLogController {
         }
 
         String field = parts[2];
+        // parseEntryIndex has already confirmed that the parsed edit index is in range.
+        assert index >= 0 && index < entries.size() : "Validated edit index must refer to an existing entry.";
         ExerciseEntry existingEntry = entries.get(index);
         if (!STRENGTH_FIELDS.contains(field) && !CARDIO_FIELDS.contains(field)) {
             ui.showError("'" + field + "' cannot be edited. Choose a field supported by this entry type.");
@@ -465,12 +470,18 @@ public class FitLogController {
      * @param ui the console UI for output and value-validation errors
      */
     private static void executeEditCommand(EditCommand command, WorkoutLog entries, Storage storage, Ui ui) {
+        // parseEditCommand creates EditCommand only after parseEntryIndex validates its index.
+        assert command.index() >= 0 && command.index() < entries.size()
+                : "EditCommand index must refer to an existing entry.";
         ExerciseEntry existingEntry = entries.get(command.index());
         ExerciseEntry updatedEntry = createUpdatedEntry(existingEntry, command.field(), command.value(), ui);
         if (updatedEntry == null) {
             return;
         }
         boolean isPersonalRecord = entries.isPersonalRecord(updatedEntry, command.index());
+        // The same validated index still identifies the entry being replaced; edit execution does not resize the log.
+        assert command.index() >= 0 && command.index() < entries.size()
+                : "Replacement index must still refer to the existing entry.";
         entries.replace(command.index(), updatedEntry);
         ui.showSuccess("Updated: " + updatedEntry.getName() + " - " + updatedEntry.getDetails());
         if (isPersonalRecord) {
@@ -505,6 +516,8 @@ public class FitLogController {
      */
     private static ExerciseEntry createUpdatedEntry(ExerciseEntry entry, String field, String value, Ui ui) {
         if (entry instanceof StrengthEntry strengthEntry) {
+            // parseEditCommand accepts only strength fields when the selected entry is a StrengthEntry.
+            assert STRENGTH_FIELDS.contains(field) : "Strength entries must be updated with strength fields.";
             return switch (field) {
             case "/sets" -> createStrengthEntryWithSets(strengthEntry, value, ui);
             case "/reps" -> createStrengthEntryWithReps(strengthEntry, value, ui);
@@ -513,6 +526,9 @@ public class FitLogController {
             };
         }
 
+        // parseEditCommand accepts only cardio fields when the selected entry is a CardioEntry.
+        assert entry instanceof CardioEntry : "Validated edit entries must be strength or cardio entries.";
+        assert CARDIO_FIELDS.contains(field) : "Cardio entries must be updated with cardio fields.";
         CardioEntry cardioEntry = (CardioEntry) entry;
         return switch (field) {
         case "/duration" -> createCardioEntryWithDuration(cardioEntry, value, ui);
