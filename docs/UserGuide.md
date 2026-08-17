@@ -236,6 +236,19 @@ Goodbye! Keep training.
 If standard input ends instead of receiving `bye`, FitLog also exits gracefully
 with the same goodbye message.
 
+## Testing
+
+Run FitLog's automated JUnit tests from the project root with:
+
+```text
+.\gradlew.bat test
+```
+
+For manual regression testing of console commands and their exact output, follow
+[the console regression transcript](pre-refactor-transcript.md). For JavaFX
+layout, message styling, Enter/Send behaviour, startup warnings, and the delayed
+`bye` close, follow [the GUI test plan](gui-test-plan.md).
+
 ## Personal records
 
 A PR is checked when a new entry is logged and again after a successful edit.

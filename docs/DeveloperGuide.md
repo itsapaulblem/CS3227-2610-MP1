@@ -143,8 +143,28 @@ EOF handling, PR notifications, and persistence startup behaviour. Numeric
 validation coverage in that transcript is currently incomplete; see the gaps in
 the Numeric parser coverage section above.
 
+## Software engineering process
+
+FitLog was developed in small, working increments. Features were first scoped
+and their edge cases agreed before implementation; larger structural changes
+were then extracted in stages while keeping the application runnable. For
+example, `Ui`, `WorkoutLog`, and the command hierarchy were introduced one at a
+time, with the console regression transcript used to confirm that user-visible
+behaviour did not change.
+
+The current verification approach combines focused JUnit tests for domain and
+storage behaviour with the console regression transcript and the GUI manual test
+plan. Before submitting a change, run `./gradlew test` and replay the relevant
+manual scenario when it changes command output or JavaFX interaction.
+
 ## Acknowledgements
 
-This project was built with AI assistance from Codex, as required to be
-acknowledged by the CS3227 MP1 requirements. Its project structure follows the
+This project was built with AI assistance from Codex. The student reviewed and
+guided the resulting design, implementation, tests, and documentation.
+
+The project structure and command-oriented interaction style draw on the
 CS2103/T individual-project conventions referenced in the assignment brief.
+The graphical interface uses [OpenJFX](https://openjfx.io/) and its Gradle
+plugin. The build uses [Gradle](https://gradle.org/), automated tests use
+[JUnit 5](https://junit.org/junit5/), and the optional distributable JAR task
+uses the [GradleUp Shadow plugin](https://gradleup.com/shadow/).
