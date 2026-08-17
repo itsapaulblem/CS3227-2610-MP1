@@ -10,7 +10,7 @@ application. Both use the same commands and produce the same FitLog response
 text. In the GUI, your command appears as a blue bubble and FitLog's response
 appears as a categorised conversation bubble.
 
-![FitLog's JavaFX conversation interface](images/fitlog-gui-screenshot.png)
+![FitLog's JavaFX conversation interface](<images/Screenshot 2026-08-17 152324.png>)
 
 ### Starting the GUI
 
