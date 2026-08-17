@@ -87,6 +87,9 @@ public class FitLog {
         if (command.equals("find") || command.startsWith("find ")) {
             return parseFindCommand(command, ui);
         }
+        if (command.equals("stats") || command.startsWith("stats ")) {
+            return parseStatsCommand(command, ui);
+        }
 
         Command simpleCommand = parseSimpleCommand(command);
         if (simpleCommand != null) {
@@ -120,6 +123,22 @@ public class FitLog {
     }
 
     /**
+     * Parses a stats command while preserving its established validation messages.
+     *
+     * @param command the raw stats command
+     * @param ui the console UI for parse error messages
+     * @return the parsed stats command, or {@code null} when invalid
+     */
+    private static StatsCommand parseStatsCommand(String command, Ui ui) {
+        String exerciseName = command.substring("stats".length()).trim();
+        if (exerciseName.isEmpty()) {
+            ui.showMessage("Specify an exercise name to view stats.");
+            return null;
+        }
+        return new StatsCommand(exerciseName);
+    }
+
+    /**
      * Parses commands that have already been migrated to the command hierarchy.
      *
      * @param command the raw user command
@@ -131,6 +150,9 @@ public class FitLog {
         }
         if (command.equals("list")) {
             return new ListCommand();
+        }
+        if (command.equals("volume")) {
+            return new VolumeCommand();
         }
         return null;
     }
@@ -232,7 +254,47 @@ public class FitLog {
             }
             yield false;
         }
+        case StatsCommand statsCommand -> {
+            var matches = entries.findByExerciseName(statsCommand.exerciseName());
+            if (matches.isEmpty()) {
+                ui.showMessage("No entries match '" + statsCommand.exerciseName() + "'.");
+            } else {
+                ui.showMessage("Progression for " + statsCommand.exerciseName() + ":");
+                for (WorkoutLog.EntryMatch match : matches) {
+                    ExerciseEntry entry = match.entry();
+                    ui.showMessage(match.position() + ". [" + entry.getTypeLabel() + "] "
+                            + formatStatsMetric(entry));
+                }
+            }
+            yield false;
+        }
+        case VolumeCommand ignored -> {
+            double strengthVolume = 0;
+            int cardioDuration = 0;
+            for (ExerciseEntry entry : entries.getEntries()) {
+                if (entry instanceof StrengthEntry strengthEntry) {
+                    strengthVolume += strengthEntry.getSets() * strengthEntry.getReps() * strengthEntry.getWeightKg();
+                } else if (entry instanceof CardioEntry cardioEntry) {
+                    cardioDuration += cardioEntry.getDurationMinutes();
+                }
+            }
+            ui.showMessage("Totals for all currently loaded entries:");
+            ui.showMessage("Strength volume: " + ExerciseEntry.formatNumber(strengthVolume) + " kg");
+            ui.showMessage("Cardio duration: " + cardioDuration + " min");
+            yield false;
+        }
         };
+    }
+
+    /**
+     * Formats an entry's type-specific personal-record metric for progression output.
+     *
+     * @param entry the entry whose metric is being displayed
+     * @return the formatted metric and its unit
+     */
+    private static String formatStatsMetric(ExerciseEntry entry) {
+        String metric = ExerciseEntry.formatNumber(entry.getPrMetric());
+        return entry instanceof StrengthEntry ? metric + "kg" : metric + " min";
     }
 
     /**

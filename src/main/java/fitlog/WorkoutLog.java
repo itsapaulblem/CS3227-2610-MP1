@@ -96,6 +96,25 @@ public class WorkoutLog {
     }
 
     /**
+     * Finds entries with the specified exercise name after applying the same
+     * normalisation used for personal-record comparison.
+     *
+     * @param name the exercise name to match
+     * @return matching entries paired with their one-based positions in logging order
+     */
+    public List<EntryMatch> findByExerciseName(String name) {
+        String normalisedName = normaliseExerciseName(name);
+        List<EntryMatch> matches = new ArrayList<>();
+        for (int index = 0; index < entries.size(); index++) {
+            ExerciseEntry entry = entries.get(index);
+            if (normaliseExerciseName(entry.getName()).equals(normalisedName)) {
+                matches.add(new EntryMatch(index + 1, entry));
+            }
+        }
+        return matches;
+    }
+
+    /**
      * Checks whether a candidate strictly improves on every other matching entry.
      *
      * @param candidate the entry being logged or edited

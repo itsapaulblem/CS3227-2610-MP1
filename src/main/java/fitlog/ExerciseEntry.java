@@ -58,7 +58,7 @@ public abstract class ExerciseEntry {
      * @param value the measurement to format
      * @return the formatted measurement
      */
-    protected String formatNumber(double value) {
+    protected static String formatNumber(double value) {
         return value == Math.rint(value) ? String.valueOf((long) value) : String.valueOf(value);
     }
 }

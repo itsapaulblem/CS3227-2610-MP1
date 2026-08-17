@@ -99,6 +99,83 @@ New PR! Heaviest bench press: 85kg
 The first log has no PR notification, tied weight has no notification, and a
 strictly heavier logged or edited entry has one.
 
+## Stats and volume
+
+For a strength-only exercise, progression uses normalised-name matching and keeps
+the original logged positions:
+
+```text
+> log strength bench press /sets 3 /reps 10 /weight 80
+Logged: bench press - 3 sets x 10 reps @ 80kg
+> log strength Bench   Press /sets 3 /reps 8 /weight 82.5
+Logged: Bench Press - 3 sets x 8 reps @ 82.5kg
+New PR! Heaviest Bench Press: 82.5kg
+> stats bench press
+Progression for bench press:
+1. [Strength] 80kg
+2. [Strength] 82.5kg
+```
+
+The same normalised name can have mixed strength and cardio history; the type
+label keeps their distinct metrics clear:
+
+```text
+> log strength circuit /sets 3 /reps 10 /weight 40
+Logged: circuit - 3 sets x 10 reps @ 40kg
+> log cardio Circuit /duration 20
+Logged: Circuit - 20 min
+> stats circuit
+Progression for circuit:
+1. [Strength] 40kg
+2. [Cardio] 20 min
+```
+
+Error cases:
+
+```text
+> stats squat
+No entries match 'squat'.
+> stats
+Specify an exercise name to view stats.
+```
+
+`volume` reports totals across all currently loaded entries, not weekly totals:
+
+```text
+> log strength bench press /sets 3 /reps 10 /weight 80
+Logged: bench press - 3 sets x 10 reps @ 80kg
+> log strength squat /sets 3 /reps 5 /weight 100
+Logged: squat - 3 sets x 5 reps @ 100kg
+> log cardio run /duration 30
+Logged: run - 30 min
+> log cardio cycle /duration 45
+Logged: cycle - 45 min
+> volume
+Totals for all currently loaded entries:
+Strength volume: 3900 kg
+Cardio duration: 75 min
+```
+
+In a session with no entries:
+
+```text
+> volume
+Totals for all currently loaded entries:
+Strength volume: 0 kg
+Cardio duration: 0 min
+```
+
+Decimal strength volume retains its decimal fraction:
+
+```text
+> log strength dumbbell curl /sets 1 /reps 1 /weight 82.55
+Logged: dumbbell curl - 1 sets x 1 reps @ 82.55kg
+> volume
+Totals for all currently loaded entries:
+Strength volume: 82.55 kg
+Cardio duration: 0 min
+```
+
 ## Persistence
 
 On a first run with no `data/fitlog.txt` file:
