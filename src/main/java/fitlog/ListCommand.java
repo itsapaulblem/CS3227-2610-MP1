@@ -1,3 +1,5 @@
+package fitlog;
+
 /**
  * Represents a request to list the current session's entries.
  */

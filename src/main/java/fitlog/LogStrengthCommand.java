@@ -1,3 +1,5 @@
+package fitlog;
+
 /**
  * Represents a validated request to log a strength exercise.
  *

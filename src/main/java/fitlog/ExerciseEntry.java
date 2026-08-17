@@ -1,3 +1,5 @@
+package fitlog;
+
 /**
  * Represents one exercise logged in the current workout session.
  */

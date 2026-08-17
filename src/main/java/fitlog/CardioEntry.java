@@ -1,3 +1,5 @@
+package fitlog;
+
 /**
  * Represents a cardio exercise with duration and an optional distance.
  */

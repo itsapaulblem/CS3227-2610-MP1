@@ -1,3 +1,5 @@
+package fitlog;
+
 /**
  * Represents a strength exercise with sets, repetitions, and weight.
  */

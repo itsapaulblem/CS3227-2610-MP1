@@ -1,3 +1,5 @@
+package fitlog;
+
 /**
  * Represents a request to delete one entry by its zero-based index.
  *

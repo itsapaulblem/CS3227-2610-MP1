@@ -1,3 +1,5 @@
+package fitlog;
+
 /**
  * Represents a request to search entry names for a case-insensitive substring.
  *

@@ -1,3 +1,5 @@
+package fitlog;
+
 /**
  * Represents a request to update one field of an entry at a zero-based index.
  *

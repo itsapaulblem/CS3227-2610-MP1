@@ -1,3 +1,5 @@
+package fitlog;
+
 /**
  * Represents a request to exit FitLog.
  */

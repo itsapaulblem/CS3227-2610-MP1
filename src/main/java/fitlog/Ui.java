@@ -1,3 +1,5 @@
+package fitlog;
+
 import java.util.Scanner;
 
 /**
