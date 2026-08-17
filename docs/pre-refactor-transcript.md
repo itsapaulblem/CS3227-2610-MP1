@@ -11,6 +11,37 @@ time for the command being tested.
 For the non-persistence sections, run each session with a fresh `data/` directory
 so entries from an earlier scenario do not affect the result.
 
+## Help
+
+The command is matched exactly in lowercase. Capitalised `Help` falls through to
+the existing unrecognised-command response:
+
+```text
+> help
+log strength <name> /sets <n> /reps <n> /weight <kg>
+  Example: log strength bench press /sets 3 /reps 10 /weight 80
+log cardio <name> /duration <min> [/distance <km>]
+  Example: log cardio run /duration 30 /distance 5
+list
+  Example: list
+edit <index> /sets <n> | edit <index> /reps <n> | edit <index> /weight <kg> | edit <index> /duration <min> | edit <index> /distance <km>
+  Example: edit 1 /weight 82.5
+delete <index>
+  Example: delete 2
+find <search term>
+  Example: find press
+stats <exercise name>
+  Example: stats bench press
+volume
+  Example: volume
+help
+  Example: help
+bye
+  Example: bye
+> Help
+I don't recognise that command. Use help to see the available commands.
+```
+
 ## Valid strength and cardio entries
 
 ```text
@@ -222,8 +253,8 @@ Welcome to FitLog!
 Warning: skipped malformed entry on line 2.
 What would you like to log today?
 > list
-1. [Strength] bench press - 3 sets x 10 reps @ 80kg (logged <logged timestamp>)
-2. [Cardio] run - 30 min, 5km (logged <logged timestamp>)
+1. [Strength] bench press - 3 sets x 10 reps @ 80kg (logged time not recorded)
+2. [Cardio] run - 30 min, 5km (logged time not recorded)
 > bye
 Goodbye! Keep training.
 ```

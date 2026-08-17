@@ -110,7 +110,7 @@ public class FitLogController {
             ui.showError("'" + command.substring("log ".length()).split("\\s+")[0]
                     + "' is not an exercise type. Use strength or cardio.");
         } else {
-            ui.showError("I don't recognise that command. Use log, list, edit, delete, or bye.");
+            ui.showError("I don't recognise that command. Use help to see the available commands.");
         }
         return null;
     }
@@ -162,6 +162,9 @@ public class FitLogController {
         }
         if (command.equals("volume")) {
             return new VolumeCommand();
+        }
+        if (command.equals("help")) {
+            return new HelpCommand();
         }
         return null;
     }
@@ -286,7 +289,36 @@ public class FitLogController {
             ui.showInfo("Cardio duration: " + totals.cardioDurationMinutes() + " min");
             yield false;
         }
+        case HelpCommand ignored -> {
+            showHelpEntry(ui, "log strength <name> /sets <n> /reps <n> /weight <kg>",
+                    "log strength bench press /sets 3 /reps 10 /weight 80");
+            showHelpEntry(ui, "log cardio <name> /duration <min> [/distance <km>]",
+                    "log cardio run /duration 30 /distance 5");
+            showHelpEntry(ui, "list", "list");
+            showHelpEntry(ui, "edit <index> /sets <n> | edit <index> /reps <n> | "
+                    + "edit <index> /weight <kg> | edit <index> /duration <min> | "
+                    + "edit <index> /distance <km>", "edit 1 /weight 82.5");
+            showHelpEntry(ui, "delete <index>", "delete 2");
+            showHelpEntry(ui, "find <search term>", "find press");
+            showHelpEntry(ui, "stats <exercise name>", "stats bench press");
+            showHelpEntry(ui, "volume", "volume");
+            showHelpEntry(ui, "help", "help");
+            showHelpEntry(ui, "bye", "bye");
+            yield false;
+        }
         };
+    }
+
+    /**
+     * Displays one help syntax line followed by a visually distinct example line.
+     *
+     * @param ui the destination for both help lines
+     * @param syntax the supported command syntax
+     * @param example a valid command using that syntax
+     */
+    private static void showHelpEntry(Ui ui, String syntax, String example) {
+        ui.showInfo(syntax);
+        ui.showExample("Example: " + example);
     }
 
     /**

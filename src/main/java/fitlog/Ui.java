@@ -12,6 +12,13 @@ public interface Ui {
     void showInfo(String message);
 
     /**
+     * Displays an example command using presentation distinct from normal information.
+     *
+     * @param message the labelled example to display
+     */
+    void showExample(String message);
+
+    /**
      * Displays confirmation of a successful mutation.
      *
      * @param message the confirmation to display

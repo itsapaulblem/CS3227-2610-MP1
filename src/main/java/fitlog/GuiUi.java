@@ -40,6 +40,11 @@ public class GuiUi implements Ui {
     }
 
     @Override
+    public void showExample(String message) {
+        appendMessage(message, "example-message", Pos.CENTER_LEFT);
+    }
+
+    @Override
     public void showSuccess(String message) {
         appendMessage(message, "success-message", Pos.CENTER_LEFT);
     }

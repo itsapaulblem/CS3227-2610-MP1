@@ -219,6 +219,29 @@ Strength volume: 3900 kg
 Cardio duration: 75 min
 ```
 
+### View command help
+
+Syntax:
+
+```text
+help
+```
+
+FitLog displays every supported command as a syntax line followed by a separate
+example line. In the JavaFX interface, examples use a muted monospace font so
+they are easy to distinguish from command syntax.
+
+Example:
+
+```text
+> help
+log strength <name> /sets <n> /reps <n> /weight <kg>
+  Example: log strength bench press /sets 3 /reps 10 /weight 80
+...
+```
+
+The command is case-sensitive: `Help` is not recognised.
+
 ### Exit FitLog
 
 Syntax:
@@ -332,7 +355,7 @@ guides to correcting input:
 | Invalid entry number | `Entry number must be a whole number, not 'one'.` |
 | Out-of-range entry number | `Entry 4 does not exist. Use list to view entry numbers.` |
 | Field belongs to the other entry type | `'/duration' applies to cardio entries, but entry 1 is strength.` |
-| Unrecognised command | `I don't recognise that command. Use log, list, edit, delete, or bye.` |
+| Unrecognised command | `I don't recognise that command. Use help to see the available commands.` |
 
 The error text is case-sensitive and reflects the supplied flag, entry number, or
 search term where applicable.

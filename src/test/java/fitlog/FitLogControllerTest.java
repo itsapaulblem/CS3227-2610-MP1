@@ -63,6 +63,54 @@ class FitLogControllerTest {
                 + "\\(logged \\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}\\)"));
     }
 
+    @Test
+    void helpDisplaysEveryCommandWithoutSaving(@TempDir Path tempDir) {
+        Path file = tempDir.resolve("fitlog.txt");
+        RecordingUi ui = new RecordingUi();
+        FitLogController controller = new FitLogController(ui, new Storage(file));
+        controller.start();
+        ui.clearMessages();
+
+        controller.submit("help");
+
+        assertEquals(List.of(
+                "log strength <name> /sets <n> /reps <n> /weight <kg>",
+                "Example: log strength bench press /sets 3 /reps 10 /weight 80",
+                "log cardio <name> /duration <min> [/distance <km>]",
+                "Example: log cardio run /duration 30 /distance 5",
+                "list",
+                "Example: list",
+                "edit <index> /sets <n> | edit <index> /reps <n> | edit <index> /weight <kg> | "
+                        + "edit <index> /duration <min> | edit <index> /distance <km>",
+                "Example: edit 1 /weight 82.5",
+                "delete <index>",
+                "Example: delete 2",
+                "find <search term>",
+                "Example: find press",
+                "stats <exercise name>",
+                "Example: stats bench press",
+                "volume",
+                "Example: volume",
+                "help",
+                "Example: help",
+                "bye",
+                "Example: bye"), ui.messages());
+        assertTrue(java.nio.file.Files.notExists(file));
+    }
+
+    @Test
+    void capitalisedHelpIsNotRecognised(@TempDir Path tempDir) {
+        RecordingUi ui = new RecordingUi();
+        FitLogController controller = new FitLogController(ui, new Storage(tempDir.resolve("fitlog.txt")));
+        controller.start();
+        ui.clearMessages();
+
+        controller.submit("Help");
+
+        assertEquals(List.of("I don't recognise that command. Use help to see the available commands."),
+                ui.messages());
+    }
+
     /**
      * Captures controller feedback without using either the console or JavaFX UI.
      */
@@ -71,6 +119,11 @@ class FitLogControllerTest {
 
         @Override
         public void showInfo(String message) {
+            messages.add(message);
+        }
+
+        @Override
+        public void showExample(String message) {
             messages.add(message);
         }
 

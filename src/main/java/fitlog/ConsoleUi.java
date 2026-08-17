@@ -31,6 +31,11 @@ public class ConsoleUi implements Ui {
     }
 
     @Override
+    public void showExample(String message) {
+        System.out.println("  " + message);
+    }
+
+    @Override
     public void showSuccess(String message) {
         System.out.println(message);
     }

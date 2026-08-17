@@ -15,8 +15,8 @@ and domain layer:
 - `FitLogController` owns startup loading, command parsing, dispatch, the current
   `WorkoutLog`, and the `Storage` service. Its `start()` method emits the startup
   feedback, and `submit(String)` resolves and executes one command.
-- `Ui` is an output interface with separate information, success, error, warning,
-  and PR feedback methods. `ConsoleUi` implements it with plain console output,
+- `Ui` is an output interface with separate information, example, success, error,
+  warning, and PR feedback methods. `ConsoleUi` implements it with plain console output,
   owns the `Scanner`, prints the `> ` prompt, and returns `null` at end-of-file.
 - `GuiUi` implements `Ui` by rendering categorised messages as styled JavaFX
   conversation bubbles and scrolling to the newest message.
@@ -31,7 +31,8 @@ and domain layer:
   each subtype supplies display details and its PR metric.
 - `Command` is a sealed interface. The command records are `ByeCommand`,
   `ListCommand`, `DeleteCommand`, `EditCommand`, `LogStrengthCommand`,
-  `LogCardioCommand`, `FindCommand`, `StatsCommand`, and `VolumeCommand`. They
+  `LogCardioCommand`, `FindCommand`, `StatsCommand`, `VolumeCommand`, and
+  `HelpCommand`. They
   represent successfully parsed commands; validation errors are reported during
   parsing before a command record is created.
 
@@ -76,6 +77,15 @@ or edited. It compares only same-type entries with the same normalised exercise
 name, excludes the edited entry itself, and requires a strictly greater metric.
 The result is not stored on an entry. Consequently, deleting an entry cannot leave
 stale PR state; a later log or edit uses the then-current history.
+
+### Help output presentation
+
+`HelpCommand` does not mutate the workout log or trigger a storage save. Its
+execution emits each command syntax through `Ui.showInfo`, followed by its
+example through `Ui.showExample`. Keeping examples as a separate UI feedback
+category lets `ConsoleUi` indent them and lets `GuiUi` apply the
+`example-message` CSS class, which uses a muted monospace font, without placing
+JavaFX styling concerns in `FitLogController`.
 
 ### Tab-separated storage
 
@@ -142,8 +152,9 @@ persistence behaviour:
   time display.
 - `StorageTest` also covers timestamp round trips and backward-compatible loading
   of timestamp-less legacy lines.
-- `FitLogControllerTest` covers timestamp preservation during edits and timestamp
-  display in `list` and `stats` output.
+- `FitLogControllerTest` covers timestamp preservation during edits, timestamp
+  display in `list` and `stats` output, help output, exact lowercase help matching,
+  and the guarantee that help does not create a storage file.
 
 `docs/pre-refactor-transcript.md` is the manual regression baseline for console
 behaviour: command parsing, user-facing validation messages, edit/delete flows,

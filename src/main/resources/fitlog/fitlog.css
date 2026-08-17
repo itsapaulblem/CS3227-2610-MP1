@@ -66,6 +66,15 @@
     -fx-background-color: #e2e8f0;
 }
 
+.example-message {
+    -fx-text-fill: #475569;
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #cbd5e1;
+    -fx-border-radius: 14;
+    -fx-font-family: "Consolas", "Courier New", monospace;
+    -fx-font-style: italic;
+}
+
 .success-message {
     -fx-text-fill: #14532d;
     -fx-background-color: #dcfce7;

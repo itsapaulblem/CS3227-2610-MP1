@@ -8,7 +8,8 @@ reviewing progress, and tracking personal records.
 FitLog can run as either a JavaFX conversation-style application or a console
 application. Both use the same commands and produce the same FitLog response
 text. In the GUI, your command appears as a blue bubble and FitLog's response
-appears as a categorised conversation bubble.
+appears as a categorised conversation bubble. Help examples appear beneath their
+command syntax in muted, italic monospace bubbles so they are easy to distinguish.
 
 ![FitLog's JavaFX conversation interface](<images/Screenshot 2026-08-17 182220.png>)
 
@@ -273,6 +274,40 @@ Cardio duration: 75 min
 
 The GUI displays these total lines as information bubbles.
 
+## Viewing command help
+
+To see every supported command, its syntax, and a short example, use `help`.
+
+Syntax:
+
+```text
+help
+```
+
+Example:
+
+```text
+help
+```
+
+Expected outcome: displays each command syntax followed by a separate example
+line. The console indents examples; the GUI gives them a distinct monospace style.
+
+Console output begins as follows:
+
+```text
+> help
+log strength <name> /sets <n> /reps <n> /weight <kg>
+  Example: log strength bench press /sets 3 /reps 10 /weight 80
+log cardio <name> /duration <min> [/distance <km>]
+  Example: log cardio run /duration 30 /distance 5
+...
+```
+
+Commands are case-sensitive, so `Help` is not recognised. An unrecognised command
+suggests using `help` to see the available commands. Viewing help does not change
+or save workout data.
+
 ## Stopping FitLog
 
 To end a FitLog session, use `bye`.
@@ -313,3 +348,4 @@ window closes.
   `yyyy-MM-dd HH:mm`; edits preserve the original time.
 - The GUI uses green success, red error, amber warning, and gold PR feedback to
   make each response easy to identify.
+- Use `help` to see all supported commands and examples.
