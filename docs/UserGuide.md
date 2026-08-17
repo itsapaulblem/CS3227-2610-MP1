@@ -1,66 +1,48 @@
 # FitLog User Guide
 
-FitLog is a workout logging application with both a JavaFX graphical interface
-and a console interface. It keeps entries in a saved workout log, lets you list,
-edit, delete, and search them, and identifies personal records (PRs).
+Introducing FitLog: a workout logger for recording strength and cardio exercise,
+reviewing progress, and tracking personal records.
 
-## Build
+## UI
 
-FitLog requires Java 25. From the project root, build the application with:
+FitLog can run as either a JavaFX conversation-style GUI or a command-line interface (CLI). Both interfaces support the same commands and display the same FitLog responses.
+
+In the GUI, user commands are displayed in blue conversation bubbles, while FitLog's responses appear in categorised response bubbles. Help examples are shown below the corresponding command syntax in muted, italicised monospace bubbles, making them easy to distinguish from commands and responses.
+
+![FitLog's JavaFX conversation interface](<../images/Screenshot 2026-08-17 182220.png>)
+
+### Tested environment
+
+FitLog was developed and tested on Windows 11 using Java 25 and PowerShell.
+
+### Starting the GUI
+
+Build the project with Java 25, then launch the JavaFX interface:
 
 ```text
 ./gradlew build
-```
-
-## Run the graphical interface
-
-The default Gradle run task launches the JavaFX GUI through `fitlog.Launcher`:
-
-```text
 ./gradlew run
 ```
 
-On PowerShell, use `./gradlew.bat build` and `./gradlew.bat run` if needed.
+On PowerShell, use `./gradlew.bat build` and `./gradlew.bat run` if needed. The
+GUI has a header, a full-width scrollable conversation view, and a command field
+with a **Send** button. Press Enter or click **Send** to submit a command.
 
-The GUI contains:
+### Starting the console command line interface (CLI)
 
-- a header with the FitLog title and subtitle;
-- a full-width, scrollable conversation view;
-- a command input field and **Send** button at the bottom.
-
-Enter commands in the input field and press Enter or click **Send**. The button is
-disabled while the input is blank. The GUI has no separate command language: use
-the exact same syntax documented in the [Commands](#commands) section below.
-
-Conversation cards provide feedback by category:
-
-- Green: successful log, edit, or delete operation.
-- Red: validation or command error.
-- Amber: non-fatal storage warning.
-- Gold: personal-record notification.
-- Blue: your submitted command.
-
-Typing `bye` displays the goodbye message, disables the input, and closes the
-window automatically after a short delay.
-
-## Run the console interface
-
-The console remains available, but `./gradlew run` no longer launches it. After
-building the project, start the `FitLog` class explicitly:
+After building, start the console entry point explicitly:
 
 ```text
 java -cp build/classes/java/main fitlog.FitLog
 ```
 
-The console displays a `> ` prompt for each command. Ensure the `java` command
+The console displays a `> ` prompt before each command. Ensure the `java` command
 uses Java 25.
 
-## Commands
+## Logging a strength exercise
 
-Exercise names may contain spaces. Option flags and their values are separated by
-whitespace.
-
-### Log a strength exercise
+To log strength work, use `log strength` followed by an exercise name, sets,
+reps, and weight in kilograms.
 
 Syntax:
 
@@ -68,17 +50,26 @@ Syntax:
 log strength <name> /sets <n> /reps <n> /weight <kg>
 ```
 
-`/sets` and `/reps` must be positive whole numbers. `/weight` must be a finite
-number greater than zero.
-
 Example:
+
+```text
+log strength bench press /sets 3 /reps 10 /weight 80
+```
+
+Expected outcome: stores a strength entry for bench press with three sets of ten
+repetitions at 80 kg.
+
+Console output (the GUI shows the same FitLog text in a green success bubble):
 
 ```text
 > log strength bench press /sets 3 /reps 10 /weight 80
 Logged: bench press - 3 sets x 10 reps @ 80kg
 ```
 
-### Log a cardio exercise
+## Logging a cardio exercise
+
+To log cardio work, use `log cardio` followed by an exercise name and duration in
+minutes. Distance in kilometres is optional.
 
 Syntax:
 
@@ -86,17 +77,24 @@ Syntax:
 log cardio <name> /duration <min> [/distance <km>]
 ```
 
-`/duration` is required and must be a positive whole number. `/distance` is
-optional; when supplied, it must be a finite number greater than zero.
-
 Example:
+
+```text
+log cardio run /duration 30 /distance 5
+```
+
+Expected outcome: stores a cardio entry for a 30-minute, 5 km run.
+
+Console output (the GUI shows the same FitLog text in a green success bubble):
 
 ```text
 > log cardio run /duration 30 /distance 5
 Logged: run - 30 min, 5km
 ```
 
-### List all entries
+## Listing entries
+
+To view all logged entries, use the `list` command.
 
 Syntax:
 
@@ -104,10 +102,16 @@ Syntax:
 list
 ```
 
-Entries are shown in logging order with one-based numbers and the local time
-when FitLog logged them. Use those numbers with `edit` and `delete`.
-
 Example:
+
+```text
+list
+```
+
+Expected outcome: displays every entry in logging order with a number,
+type label, exercise name, and details.
+
+Console output:
 
 ```text
 > list
@@ -115,7 +119,13 @@ Example:
 2. [Cardio] run - 30 min, 5km (logged 2026-08-17 10:15)
 ```
 
-### Edit one field
+The GUI displays the same entry lines as information bubbles.
+
+## Editing an entry
+
+To change one field of an existing entry, use `edit` with its list
+number and exactly one supported field. Strength entries support `/sets`, `/reps`,
+and `/weight`; cardio entries support `/duration` and `/distance`.
 
 Syntax:
 
@@ -127,19 +137,28 @@ edit <index> /duration <min>
 edit <index> /distance <km>
 ```
 
-`/sets`, `/reps`, and `/weight` apply only to strength entries. `/duration` and
-`/distance` apply only to cardio entries. The index is the entry's one-based
-number in `list`; exactly one field can be changed in each command. A cardio
-distance cannot currently be cleared through `edit`.
-
 Example:
+
+```text
+edit 1 /weight 82.5
+```
+
+Expected outcome: replaces the first entry with an otherwise identical entry that
+uses 82.5 kg.
+
+Console output:
 
 ```text
 > edit 1 /weight 82.5
 Updated: bench press - 3 sets x 10 reps @ 82.5kg
 ```
 
-### Delete an entry
+The GUI displays the update as a green success bubble. If the edit establishes a
+PR, FitLog also displays a gold personal-record bubble.
+
+## Deleting an entry
+
+To remove an entry, use `delete` followed by its one-based list number.
 
 Syntax:
 
@@ -147,16 +166,27 @@ Syntax:
 delete <index>
 ```
 
-The index is the entry's one-based number in `list`.
-
 Example:
+
+```text
+delete 2
+```
+
+Expected outcome: removes the second logged entry.
+
+Console output:
 
 ```text
 > delete 2
 Removed: run - 30 min, 5km
 ```
 
-### Find entries by name
+The GUI displays the removal as a green success bubble.
+
+## Finding entries
+
+To search entry names, use `find` followed by a search term. Matching is
+case-insensitive and uses substring matching.
 
 Syntax:
 
@@ -164,11 +194,16 @@ Syntax:
 find <search term>
 ```
 
-FitLog uses case-insensitive substring matching. Results retain their actual
-one-based positions in the full log, so the displayed number can be used directly
-with `edit` or `delete`.
-
 Example:
+
+```text
+find press
+```
+
+Expected outcome: lists matching entries with their actual positions in the full
+log, so those numbers can be used with `edit` or `delete`.
+
+Console output:
 
 ```text
 > find press
@@ -176,7 +211,13 @@ Example:
 3. [Strength] overhead press - 3 sets x 8 reps @ 40kg
 ```
 
-### View an exercise's progression
+The GUI displays the same matching lines as information bubbles.
+
+## Viewing an exercise progression
+
+To see the personal-record metric for one exercise across its logged history, use
+`stats` followed by the exercise name. Names match after trimming, collapsing
+whitespace, and ignoring case.
 
 Syntax:
 
@@ -184,11 +225,16 @@ Syntax:
 stats <exercise name>
 ```
 
-FitLog finds entries whose names match after trimming, collapsing internal
-whitespace, and ignoring letter case. It displays matching entries in logged order
-with their actual list positions, type-specific PR metrics, and logging times.
-
 Example:
+
+```text
+stats bench press
+```
+
+Expected outcome: shows matching entries in logged order, with weight for
+strength entries and duration for cardio entries.
+
+Console output:
 
 ```text
 > stats bench press
@@ -197,7 +243,11 @@ Progression for bench press:
 2. [Strength] 82.5kg (logged 2026-08-17 11:00)
 ```
 
-### View all loaded totals
+The GUI displays the progression header and each result as information bubbles.
+
+## Viewing training totals
+
+To view totals across all currently loaded entries, use `volume`.
 
 Syntax:
 
@@ -205,12 +255,17 @@ Syntax:
 volume
 ```
 
-This is not a weekly report: FitLog does not yet filter entries by a date range.
-It reports totals across all entries currently loaded from the log. Strength
-volume is the sum of `sets × reps × weight`; cardio duration is the sum of
-recorded minutes.
-
 Example:
+
+```text
+volume
+```
+
+Expected outcome: shows total strength volume (`sets × reps × weight`) and total
+cardio duration. These are loaded-log totals, not weekly totals, because FitLog
+does not yet filter entries by a date range.
+
+Console output:
 
 ```text
 > volume
@@ -219,7 +274,11 @@ Strength volume: 3900 kg
 Cardio duration: 75 min
 ```
 
-### View command help
+The GUI displays these total lines as information bubbles.
+
+## Viewing command help
+
+To see every supported command, its syntax, and a short example, use `help`.
 
 Syntax:
 
@@ -227,22 +286,33 @@ Syntax:
 help
 ```
 
-FitLog displays every supported command as a syntax line followed by a separate
-example line. In the JavaFX interface, examples use a muted monospace font so
-they are easy to distinguish from command syntax.
-
 Example:
+
+```text
+help
+```
+
+Expected outcome: displays each command syntax followed by a separate example
+line. The console indents examples; the GUI gives them a distinct monospace style.
+
+Console output begins as follows:
 
 ```text
 > help
 log strength <name> /sets <n> /reps <n> /weight <kg>
   Example: log strength bench press /sets 3 /reps 10 /weight 80
+log cardio <name> /duration <min> [/distance <km>]
+  Example: log cardio run /duration 30 /distance 5
 ...
 ```
 
-The command is case-sensitive: `Help` is not recognised.
+Commands are case-sensitive, so `Help` is not recognised. An unrecognised command
+suggests using `help` to see the available commands. Viewing help does not change
+or save workout data.
 
-### Exit FitLog
+## Stopping FitLog
+
+To end a FitLog session, use `bye`.
 
 Syntax:
 
@@ -253,25 +323,33 @@ bye
 Example:
 
 ```text
+bye
+```
+
+Expected outcome: displays a goodbye message and ends the current interaction. In
+the GUI, the input is disabled and the window closes after a short delay.
+
+Console output:
+
+```text
 > bye
 Goodbye! Keep training.
 ```
 
-If standard input ends instead of receiving `bye`, FitLog also exits gracefully
-with the same goodbye message.
+In the GUI, `Goodbye! Keep training.` appears as an information bubble before the
+window closes.
 
-## Testing
+## Additional notes
 
-Run FitLog's automated JUnit tests from the project root with:
+- Exercise names may contain spaces; option flags and their values are separated
+  by whitespace.
+- `/sets`, `/reps`, and `/duration` must be positive whole numbers. `/weight` and
+  `/distance` must be finite numbers greater than zero when supplied.
+- FitLog saves successful log, edit, and delete operations to `data/fitlog.txt`.
+- Each new entry records its local logging time. `list` and `stats` show it as
+  `yyyy-MM-dd HH:mm`; edits preserve the original time.
+- Use `help` to see all supported commands and examples.
 
-```text
-.\gradlew.bat test
-```
-
-For manual regression testing of console commands and their exact output, follow
-[the console regression transcript](pre-refactor-transcript.md). For JavaFX
-layout, message styling, Enter/Send behaviour, startup warnings, and the delayed
-`bye` close, follow [the GUI test plan](gui-test-plan.md).
 
 ## Personal records
 
@@ -284,7 +362,6 @@ A PR is checked when a new entry is logged and again after a successful edit.
   whitespace.
 - A metric must be strictly greater than every matching entry to be a PR. A first
   entry and a tied metric are not PRs.
-- During an edit, the entry being replaced is excluded from its own comparison.
 
 For example:
 
@@ -293,17 +370,13 @@ New PR! Heaviest bench press: 82.5kg
 New PR! Longest run: 45 min
 ```
 
-PR status is calculated from the current in-memory log each time; it is not stored
-on an entry. Deleting a former PR therefore does not leave stale PR state behind.
-
 ## Logging times
 
 Every new strength or cardio entry records the local time when its `log` command
 is submitted. An `edit` preserves that original logging time. `list` and `stats`
 display the timestamp as `yyyy-MM-dd HH:mm`.
 
-FitLog does not yet support choosing a workout time or filtering entries by date
-range. The recorded time is therefore when FitLog received the command, which
+The recorded time is when FitLog received the command, which
 may differ from the time the activity was performed.
 
 ## Data persistence
@@ -311,10 +384,6 @@ may differ from the time the activity was performed.
 FitLog stores its data in `data/fitlog.txt`, relative to the directory where you
 run the application. The `data/` directory is created automatically when an entry
 is first saved.
-
-New saved lines include an ISO-8601 logging timestamp. Older saved lines without
-a timestamp still load successfully and display `time not recorded` in `list`
-and `stats`.
 
 Successful `log`, `edit`, and `delete` commands save the complete log immediately.
 `list` and `find` do not save because they do not change data.

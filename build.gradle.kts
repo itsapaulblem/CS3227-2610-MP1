@@ -39,6 +39,11 @@ tasks.named<JavaExec>("run") {
     standardInput = System.`in`
 }
 
+tasks.jar {
+    // Keep the thin application JAR distinct from the all-in-one Shadow JAR.
+    archiveClassifier.set("plain")
+}
+
 tasks.named<ShadowJar>("shadowJar") {
     archiveFileName.set("fitlog.jar")
 }

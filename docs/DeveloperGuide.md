@@ -75,8 +75,14 @@ simple value-object behaviour.
 `WorkoutLog.isPersonalRecord` scans the current collection when an entry is logged
 or edited. It compares only same-type entries with the same normalised exercise
 name, excludes the edited entry itself, and requires a strictly greater metric.
-The result is not stored on an entry. Consequently, deleting an entry cannot leave
-stale PR state; a later log or edit uses the then-current history.
+During an edit, the candidate occupies an existing position in the log, so the
+controller passes that position as `excludedIndex`; logging passes `-1` because
+there is no existing entry to exclude. This prevents an edited entry from being
+compared against its previous value.
+
+The result is calculated from the current in-memory log and is not stored on an
+entry. Consequently, deleting a former PR cannot leave stale PR state; a later
+log or edit always evaluates the then-current history.
 
 ### Help output presentation
 
@@ -98,12 +104,34 @@ cardio<TAB>name<TAB>durationMinutes<TAB>distanceKm<TAB>loggedAt
 
 `loggedAt` is an ISO-8601 `LocalDateTime` representing when FitLog received the
 log command. For cardio entries without a distance, the distance field is empty.
-Older strength and cardio lines without the final timestamp field remain valid
-and load with an unknown time. Tabs make the file both human-readable and simple
-to parse. This is safe under the current name parser because it rebuilds names
-from whitespace-split tokens, so names cannot contain literal tabs. `Storage.save`
-writes a temporary file and then replaces the data file atomically when supported,
-falling back to a normal replacement when it is not.
+`formatLoggedAt` serialises known timestamps with `LocalDateTime.toString()` and
+writes an empty final field when the time is unknown. `parseLoggedAt` uses
+`LocalDateTime.parse`, which reads the same ISO-8601 representation.
+
+Backward compatibility is handled by accepting both the current field counts
+(six fields for strength and five for cardio) and the legacy counts without a
+timestamp (five and four respectively). Legacy entries receive a `null`
+`loggedAt` value and display `time not recorded`; no historical time is invented.
+
+Tabs make the file both human-readable and simple to parse. This is safe under
+the current name parser because it rebuilds names from whitespace-split tokens,
+so names cannot contain literal tabs. `Storage.save` writes a temporary file and
+then replaces the data file atomically when supported, falling back to a normal
+replacement when it is not.
+
+### Malformed storage lines
+
+`Storage.load` reads the UTF-8 file one line at a time and passes each line to
+`parseEntry`. A line is malformed when it has an unknown entry type, the wrong
+number of tab-separated fields, a blank exercise name, an invalid numeric or
+timestamp value, or a non-positive/non-finite measurement. The type-specific
+parsers return `null` for failed structural or range checks, while
+`parseEntry` converts `NumberFormatException` and `DateTimeParseException` into
+the same `null` result.
+
+Loading continues after a malformed line. Each `null` result produces a warning
+containing the one-based source line number, while valid lines before and after
+it remain in the returned `LoadResult`.
 
 ## Testing
 
