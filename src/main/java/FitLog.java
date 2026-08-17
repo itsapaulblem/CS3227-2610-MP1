@@ -1,9 +1,5 @@
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.Set;
 
 /**
@@ -20,115 +16,272 @@ public class FitLog {
      * @param args command-line arguments, which are not used
      */
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        List<ExerciseEntry> entries = new ArrayList<>();
+        Ui ui = new Ui();
+        WorkoutLog entries = new WorkoutLog();
 
-        System.out.println("Welcome to FitLog!");
-        System.out.println("What would you like to log today?");
+        ui.showMessage("Welcome to FitLog!");
+        ui.showMessage("What would you like to log today?");
 
         while (true) {
-            System.out.print("> ");
-            if (!scanner.hasNextLine()) {
-                System.out.println();
-                System.out.println("Goodbye! Keep training.");
+            String input = ui.readCommand();
+            if (input == null) {
+                ui.showMessage("");
+                ui.showMessage("Goodbye! Keep training.");
                 break;
             }
-            String command = scanner.nextLine().trim();
+            String command = input.trim();
 
-            if (command.equals("bye")) {
-                System.out.println("Goodbye! Keep training.");
-                break;
+            Command resolvedCommand = resolveCommand(command, entries, ui);
+            if (resolvedCommand == null) {
+                continue;
             }
-
-            if (command.equals("log strength") || command.startsWith("log strength ")) {
-                logStrength(command, entries);
-            } else if (command.equals("log cardio") || command.startsWith("log cardio ")) {
-                logCardio(command, entries);
-            } else if (command.equals("delete") || command.startsWith("delete ")) {
-                deleteEntry(command, entries);
-            } else if (command.equals("edit") || command.startsWith("edit ")) {
-                editEntry(command, entries);
-            } else if (command.equals("list")) {
-                for (int index = 0; index < entries.size(); index++) {
-                    ExerciseEntry entry = entries.get(index);
-                    System.out.println((index + 1) + ". [" + entry.getTypeLabel() + "] "
-                            + entry.getName() + " - " + entry.getDetails());
-                }
-            } else if (command.equals("log")) {
-                System.out.println("Choose an exercise type after 'log': strength or cardio.");
-            } else if (command.startsWith("log ")) {
-                System.out.println("'" + command.substring("log ".length()).split("\\s+")[0]
-                        + "' is not an exercise type. Use strength or cardio.");
-            } else {
-                System.out.println("I don't recognise that command. Use log, list, edit, delete, or bye.");
+            if (executeCommand(resolvedCommand, entries, ui)) {
+                break;
             }
         }
     }
 
     /**
-     * Parses and records a strength command, reporting an explanation when it is
-     * invalid.
+     * Routes a raw command to the appropriate parser and reports errors for unrecognised input.
      *
-     * @param command the complete strength logging command
+     * @param command the raw user command
      * @param entries the current session's entries
+     * @param ui the console UI for parse error messages
+     * @return the parsed command, or {@code null} after reporting an error
      */
-    private static void logStrength(String command, List<ExerciseEntry> entries) {
+    private static Command resolveCommand(String command, WorkoutLog entries, Ui ui) {
+        if (command.equals("delete") || command.startsWith("delete ")) {
+            return parseDeleteCommand(command, entries, ui);
+        }
+        if (command.equals("edit") || command.startsWith("edit ")) {
+            return parseEditCommand(command, entries, ui);
+        }
+        if (command.equals("log strength") || command.startsWith("log strength ")) {
+            return parseLogStrengthCommand(command, ui);
+        }
+        if (command.equals("log cardio") || command.startsWith("log cardio ")) {
+            return parseLogCardioCommand(command, ui);
+        }
+
+        Command simpleCommand = parseSimpleCommand(command);
+        if (simpleCommand != null) {
+            return simpleCommand;
+        }
+        if (command.equals("log")) {
+            ui.showMessage("Choose an exercise type after 'log': strength or cardio.");
+        } else if (command.startsWith("log ")) {
+            ui.showMessage("'" + command.substring("log ".length()).split("\\s+")[0]
+                    + "' is not an exercise type. Use strength or cardio.");
+        } else {
+            ui.showMessage("I don't recognise that command. Use log, list, edit, delete, or bye.");
+        }
+        return null;
+    }
+
+    /**
+     * Parses commands that have already been migrated to the command hierarchy.
+     *
+     * @param command the raw user command
+     * @return a parsed command, or {@code null} when another command path should handle it
+     */
+    private static Command parseSimpleCommand(String command) {
+        if (command.equals("bye")) {
+            return new ByeCommand();
+        }
+        if (command.equals("list")) {
+            return new ListCommand();
+        }
+        return null;
+    }
+
+    /**
+     * Parses a delete command while preserving its established validation messages.
+     *
+     * @param command the raw delete command
+     * @param entries the current session's entries
+     * @param ui the console UI for parse error messages
+     * @return the parsed delete command, or {@code null} when invalid
+     */
+    private static DeleteCommand parseDeleteCommand(String command, WorkoutLog entries, Ui ui) {
+        if (entries.isEmpty()) {
+            ui.showMessage("There are no entries to delete.");
+            return null;
+        }
+
+        String[] parts = command.split("\\s+");
+        if (parts.length == 1) {
+            ui.showMessage("Specify the entry number to delete.");
+            return null;
+        }
+        if (parts.length != 2) {
+            ui.showMessage("Delete accepts exactly one entry number.");
+            return null;
+        }
+
+        Integer index = parseEntryIndex(parts[1], entries.size(), ui);
+        return index == null ? null : new DeleteCommand(index);
+    }
+
+    /**
+     * Executes a parsed command.
+     *
+     * @param command the command to execute
+     * @param entries the current session's entries
+     * @param ui the console UI for output
+     * @return whether FitLog should exit after execution
+     */
+    private static boolean executeCommand(Command command, WorkoutLog entries, Ui ui) {
+        return switch (command) {
+        case ByeCommand ignored -> {
+            ui.showMessage("Goodbye! Keep training.");
+            yield true;
+        }
+        case ListCommand ignored -> {
+            for (int index = 0; index < entries.size(); index++) {
+                ExerciseEntry entry = entries.get(index);
+                ui.showMessage((index + 1) + ". [" + entry.getTypeLabel() + "] "
+                        + entry.getName() + " - " + entry.getDetails());
+            }
+            yield false;
+        }
+        case DeleteCommand deleteCommand -> {
+            ExerciseEntry removedEntry = entries.delete(deleteCommand.index());
+            ui.showMessage("Removed: " + removedEntry.getName() + " - " + removedEntry.getDetails());
+            yield false;
+        }
+        case EditCommand editCommand -> {
+            executeEditCommand(editCommand, entries, ui);
+            yield false;
+        }
+        case LogStrengthCommand logCommand -> {
+            StrengthEntry entry = new StrengthEntry(logCommand.name(), logCommand.sets(), logCommand.reps(),
+                    logCommand.weightKg());
+            boolean isPersonalRecord = entries.isPersonalRecord(entry, -1);
+            entries.add(entry);
+            ui.showMessage("Logged: " + entry.getName() + " - " + entry.getDetails());
+            if (isPersonalRecord) {
+                printPrNotification(entry, ui);
+            }
+            yield false;
+        }
+        case LogCardioCommand logCommand -> {
+            CardioEntry entry = new CardioEntry(logCommand.name(), logCommand.durationMinutes(),
+                    logCommand.distanceKm());
+            boolean isPersonalRecord = entries.isPersonalRecord(entry, -1);
+            entries.add(entry);
+            ui.showMessage("Logged: " + entry.getName() + " - " + entry.getDetails());
+            if (isPersonalRecord) {
+                printPrNotification(entry, ui);
+            }
+            yield false;
+        }
+        };
+    }
+
+    /**
+     * Parses an edit command while preserving its established validation messages.
+     *
+     * @param command the raw edit command
+     * @param entries the current session's entries
+     * @param ui the console UI for parse error messages
+     * @return the parsed edit command, or {@code null} when invalid
+     */
+    private static EditCommand parseEditCommand(String command, WorkoutLog entries, Ui ui) {
+        if (entries.isEmpty()) {
+            ui.showMessage("There are no entries to edit.");
+            return null;
+        }
+
+        String[] parts = command.split("\\s+");
+        if (parts.length == 1) {
+            ui.showMessage("Specify the entry number to edit.");
+            return null;
+        }
+
+        Integer index = parseEntryIndex(parts[1], entries.size(), ui);
+        if (index == null) {
+            return null;
+        }
+        if (parts.length == 2) {
+            ui.showMessage("Specify one field and its new value, for example /weight 82.5.");
+            return null;
+        }
+        if (parts.length == 3) {
+            ui.showMessage("Provide a value after " + parts[2] + ".");
+            return null;
+        }
+        if (parts.length != 4) {
+            ui.showMessage("Edit one field at a time.");
+            return null;
+        }
+
+        String field = parts[2];
+        ExerciseEntry existingEntry = entries.get(index);
+        if (!STRENGTH_FIELDS.contains(field) && !CARDIO_FIELDS.contains(field)) {
+            ui.showMessage("'" + field + "' cannot be edited. Choose a field supported by this entry type.");
+            return null;
+        }
+        if (existingEntry instanceof StrengthEntry && !STRENGTH_FIELDS.contains(field)) {
+            ui.showMessage("'" + field + "' applies to cardio entries, but entry " + (index + 1) + " is strength.");
+            return null;
+        }
+        if (existingEntry instanceof CardioEntry && !CARDIO_FIELDS.contains(field)) {
+            ui.showMessage("'" + field + "' applies to strength entries, but entry " + (index + 1) + " is cardio.");
+            return null;
+        }
+        return new EditCommand(index, field, parts[3]);
+    }
+
+    /**
+     * Parses a strength log command while preserving its established validation messages.
+     *
+     * @param command the raw strength log command
+     * @param ui the console UI for parse error messages
+     * @return the parsed strength command, or {@code null} when invalid
+     */
+    private static LogStrengthCommand parseLogStrengthCommand(String command, Ui ui) {
         LogDetails details = parseLogDetails(command, "log strength", "strength", STRENGTH_FIELDS,
-                "/sets, /reps, and /weight");
+                "/sets, /reps, and /weight", ui);
         if (details == null) {
-            return;
+            return null;
         }
         if (!details.hasValue("/sets") || !details.hasValue("/reps") || !details.hasValue("/weight")) {
-            System.out.println("Strength entries require /sets, /reps, and /weight.");
-            return;
+            ui.showMessage("Strength entries require /sets, /reps, and /weight.");
+            return null;
         }
-        Integer sets = parsePositiveWholeNumber(details.getValue("/sets"), "/sets");
-        Integer reps = parsePositiveWholeNumber(details.getValue("/reps"), "/reps");
-        Double weightKg = parsePositiveNumber(details.getValue("/weight"), "/weight");
+        Integer sets = parsePositiveWholeNumber(details.getValue("/sets"), "/sets", ui);
+        Integer reps = parsePositiveWholeNumber(details.getValue("/reps"), "/reps", ui);
+        Double weightKg = parsePositiveNumber(details.getValue("/weight"), "/weight", ui);
         if (sets == null || reps == null || weightKg == null) {
-            return;
+            return null;
         }
-
-        StrengthEntry entry = new StrengthEntry(details.name(), sets, reps, weightKg);
-        boolean isPersonalRecord = isPersonalRecord(entry, entries, -1);
-        entries.add(entry);
-        System.out.println("Logged: " + entry.getName() + " - " + entry.getDetails());
-        if (isPersonalRecord) {
-            printPrNotification(entry);
-        }
+        return new LogStrengthCommand(details.name(), sets, reps, weightKg);
     }
 
     /**
-     * Parses and records a cardio command, reporting an explanation when it is
-     * invalid.
+     * Parses a cardio log command while preserving its established validation messages.
      *
-     * @param command the complete cardio logging command
-     * @param entries the current session's entries
+     * @param command the raw cardio log command
+     * @param ui the console UI for parse error messages
+     * @return the parsed cardio command, or {@code null} when invalid
      */
-    private static void logCardio(String command, List<ExerciseEntry> entries) {
+    private static LogCardioCommand parseLogCardioCommand(String command, Ui ui) {
         LogDetails details = parseLogDetails(command, "log cardio", "cardio", CARDIO_FIELDS,
-                "/duration and optional /distance");
+                "/duration and optional /distance", ui);
         if (details == null) {
-            return;
+            return null;
         }
         if (!details.hasValue("/duration")) {
-            System.out.println("Cardio entries require a /duration value.");
-            return;
+            ui.showMessage("Cardio entries require a /duration value.");
+            return null;
         }
-        Integer durationMinutes = parsePositiveWholeNumber(details.getValue("/duration"), "/duration");
+        Integer durationMinutes = parsePositiveWholeNumber(details.getValue("/duration"), "/duration", ui);
         Double distanceKm = details.hasValue("/distance")
-                ? parsePositiveNumber(details.getValue("/distance"), "/distance") : null;
+                ? parsePositiveNumber(details.getValue("/distance"), "/distance", ui) : null;
         if (durationMinutes == null || (details.hasValue("/distance") && distanceKm == null)) {
-            return;
+            return null;
         }
-
-        CardioEntry entry = new CardioEntry(details.name(), durationMinutes, distanceKm);
-        boolean isPersonalRecord = isPersonalRecord(entry, entries, -1);
-        entries.add(entry);
-        System.out.println("Logged: " + entry.getName() + " - " + entry.getDetails());
-        if (isPersonalRecord) {
-            printPrNotification(entry);
-        }
+        return new LogCardioCommand(details.name(), durationMinutes, distanceKm);
     }
 
     /**
@@ -142,20 +295,20 @@ public class FitLog {
      * @return parsed details, or {@code null} after reporting an error
      */
     private static LogDetails parseLogDetails(String command, String commandPrefix, String exerciseType,
-            Set<String> allowedFields, String allowedFieldsDescription) {
+            Set<String> allowedFields, String allowedFieldsDescription, Ui ui) {
         String remainder = command.substring(commandPrefix.length()).trim();
         if (remainder.isEmpty()) {
-            System.out.println("Add an exercise name before the " + exerciseType + " options.");
+            ui.showMessage("Add an exercise name before the " + exerciseType + " options.");
             return null;
         }
         String[] parts = remainder.split("\\s+");
         int firstFlagIndex = findFirstFlag(parts);
         if (firstFlagIndex == 0) {
-            System.out.println("Add an exercise name before the " + exerciseType + " options.");
+            ui.showMessage("Add an exercise name before the " + exerciseType + " options.");
             return null;
         }
         if (firstFlagIndex == -1) {
-            System.out.println(capitalise(exerciseType) + " entries need " + allowedFieldsDescription + " values.");
+            ui.showMessage(capitalise(exerciseType) + " entries need " + allowedFieldsDescription + " values.");
             return null;
         }
 
@@ -163,20 +316,20 @@ public class FitLog {
         for (int index = firstFlagIndex; index < parts.length; index += 2) {
             String flag = parts[index];
             if (!flag.startsWith("/")) {
-                System.out.println("Unexpected text '" + flag + "'. Each option needs a /flag.");
+                ui.showMessage("Unexpected text '" + flag + "'. Each option needs a /flag.");
                 return null;
             }
             if (index + 1 == parts.length || parts[index + 1].startsWith("/")) {
-                System.out.println("Provide a value after " + flag + ".");
+                ui.showMessage("Provide a value after " + flag + ".");
                 return null;
             }
             if (!allowedFields.contains(flag)) {
-                System.out.println("'" + flag + "' is not a " + exerciseType + " option. Use "
+                ui.showMessage("'" + flag + "' is not a " + exerciseType + " option. Use "
                         + allowedFieldsDescription + ".");
                 return null;
             }
             if (values.containsKey(flag)) {
-                System.out.println("Use " + flag + " only once in a " + exerciseType + " entry.");
+                ui.showMessage("Use " + flag + " only once in a " + exerciseType + " entry.");
                 return null;
             }
             values.put(flag, parts[index + 1]);
@@ -185,96 +338,23 @@ public class FitLog {
     }
 
     /**
-     * Removes an entry identified by its one-based list number.
+     * Replaces one immutable entry with the update described by a parsed command.
      *
-     * @param command the complete delete command
+     * @param command the validated edit command
      * @param entries the current session's entries
+     * @param ui the console UI for output and value-validation errors
      */
-    private static void deleteEntry(String command, List<ExerciseEntry> entries) {
-        if (entries.isEmpty()) {
-            System.out.println("There are no entries to delete.");
-            return;
-        }
-
-        String[] parts = command.split("\\s+");
-        if (parts.length == 1) {
-            System.out.println("Specify the entry number to delete.");
-            return;
-        }
-        if (parts.length != 2) {
-            System.out.println("Delete accepts exactly one entry number.");
-            return;
-        }
-
-        Integer index = parseEntryIndex(parts[1], entries.size());
-        if (index == null) {
-            return;
-        }
-        ExerciseEntry removedEntry = entries.remove(index.intValue());
-        System.out.println("Removed: " + removedEntry.getName() + " - " + removedEntry.getDetails());
-    }
-
-    /**
-     * Replaces one immutable entry with a copy containing one validated changed
-     * value.
-     *
-     * @param command the complete edit command
-     * @param entries the current session's entries
-     */
-    private static void editEntry(String command, List<ExerciseEntry> entries) {
-        if (entries.isEmpty()) {
-            System.out.println("There are no entries to edit.");
-            return;
-        }
-
-        String[] parts = command.split("\\s+");
-        if (parts.length == 1) {
-            System.out.println("Specify the entry number to edit.");
-            return;
-        }
-
-        Integer index = parseEntryIndex(parts[1], entries.size());
-        if (index == null) {
-            return;
-        }
-        if (parts.length == 2) {
-            System.out.println("Specify one field and its new value, for example /weight 82.5.");
-            return;
-        }
-        if (parts.length == 3) {
-            System.out.println("Provide a value after " + parts[2] + ".");
-            return;
-        }
-        if (parts.length != 4) {
-            System.out.println("Edit one field at a time.");
-            return;
-        }
-
-        String field = parts[2];
-        String value = parts[3];
-        ExerciseEntry existingEntry = entries.get(index);
-        if (!STRENGTH_FIELDS.contains(field) && !CARDIO_FIELDS.contains(field)) {
-            System.out.println("'" + field + "' cannot be edited. Choose a field supported by this entry type.");
-            return;
-        }
-        if (existingEntry instanceof StrengthEntry && !STRENGTH_FIELDS.contains(field)) {
-            System.out.println("'" + field + "' applies to cardio entries, but entry " + (index + 1) + " is strength.");
-            return;
-        }
-        if (existingEntry instanceof CardioEntry && !CARDIO_FIELDS.contains(field)) {
-            System.out.println("'" + field + "' applies to strength entries, but entry " + (index + 1) + " is cardio.");
-            return;
-        }
-
-        ExerciseEntry updatedEntry = createUpdatedEntry(existingEntry, field, value);
+    private static void executeEditCommand(EditCommand command, WorkoutLog entries, Ui ui) {
+        ExerciseEntry existingEntry = entries.get(command.index());
+        ExerciseEntry updatedEntry = createUpdatedEntry(existingEntry, command.field(), command.value(), ui);
         if (updatedEntry == null) {
             return;
         }
-        boolean isPersonalRecord = isPersonalRecord(updatedEntry, entries, index);
-        entries.set(index, updatedEntry);
-        System.out.println("Updated: " + updatedEntry.getName() + " - " + updatedEntry.getDetails());
+        boolean isPersonalRecord = entries.isPersonalRecord(updatedEntry, command.index());
+        entries.replace(command.index(), updatedEntry);
+        ui.showMessage("Updated: " + updatedEntry.getName() + " - " + updatedEntry.getDetails());
         if (isPersonalRecord) {
-            printPrNotification(updatedEntry);
+            printPrNotification(updatedEntry, ui);
         }
     }
 
@@ -287,20 +367,20 @@ public class FitLog {
      * @param value the supplied replacement value
      * @return the replacement entry, or {@code null} when the value is invalid
      */
-    private static ExerciseEntry createUpdatedEntry(ExerciseEntry entry, String field, String value) {
+    private static ExerciseEntry createUpdatedEntry(ExerciseEntry entry, String field, String value, Ui ui) {
         if (entry instanceof StrengthEntry strengthEntry) {
             return switch (field) {
-                case "/sets" -> createStrengthEntryWithSets(strengthEntry, value);
-                case "/reps" -> createStrengthEntryWithReps(strengthEntry, value);
-                case "/weight" -> createStrengthEntryWithWeight(strengthEntry, value);
+            case "/sets" -> createStrengthEntryWithSets(strengthEntry, value, ui);
+            case "/reps" -> createStrengthEntryWithReps(strengthEntry, value, ui);
+            case "/weight" -> createStrengthEntryWithWeight(strengthEntry, value, ui);
                 default -> throw new IllegalStateException("Unsupported strength field: " + field);
             };
         }
 
         CardioEntry cardioEntry = (CardioEntry) entry;
         return switch (field) {
-            case "/duration" -> createCardioEntryWithDuration(cardioEntry, value);
-            case "/distance" -> createCardioEntryWithDistance(cardioEntry, value);
+        case "/duration" -> createCardioEntryWithDuration(cardioEntry, value, ui);
+        case "/distance" -> createCardioEntryWithDistance(cardioEntry, value, ui);
             default -> throw new IllegalStateException("Unsupported cardio field: " + field);
         };
     }
@@ -312,8 +392,8 @@ public class FitLog {
      * @param value the supplied set count
      * @return the rebuilt entry, or {@code null} when the value is invalid
      */
-    private static StrengthEntry createStrengthEntryWithSets(StrengthEntry entry, String value) {
-        Integer sets = parsePositiveWholeNumber(value, "/sets");
+    private static StrengthEntry createStrengthEntryWithSets(StrengthEntry entry, String value, Ui ui) {
+        Integer sets = parsePositiveWholeNumber(value, "/sets", ui);
         return sets == null ? null : new StrengthEntry(entry.getName(), sets, entry.getReps(), entry.getWeightKg());
     }
 
@@ -324,8 +404,8 @@ public class FitLog {
      * @param value the supplied repetition count
      * @return the rebuilt entry, or {@code null} when the value is invalid
      */
-    private static StrengthEntry createStrengthEntryWithReps(StrengthEntry entry, String value) {
-        Integer reps = parsePositiveWholeNumber(value, "/reps");
+    private static StrengthEntry createStrengthEntryWithReps(StrengthEntry entry, String value, Ui ui) {
+        Integer reps = parsePositiveWholeNumber(value, "/reps", ui);
         return reps == null ? null : new StrengthEntry(entry.getName(), entry.getSets(), reps, entry.getWeightKg());
     }
 
@@ -336,8 +416,8 @@ public class FitLog {
      * @param value the supplied weight
      * @return the rebuilt entry, or {@code null} when the value is invalid
      */
-    private static StrengthEntry createStrengthEntryWithWeight(StrengthEntry entry, String value) {
-        Double weightKg = parsePositiveNumber(value, "/weight");
+    private static StrengthEntry createStrengthEntryWithWeight(StrengthEntry entry, String value, Ui ui) {
+        Double weightKg = parsePositiveNumber(value, "/weight", ui);
         return weightKg == null ? null : new StrengthEntry(entry.getName(), entry.getSets(), entry.getReps(), weightKg);
     }
 
@@ -348,8 +428,8 @@ public class FitLog {
      * @param value the supplied duration
      * @return the rebuilt entry, or {@code null} when the value is invalid
      */
-    private static CardioEntry createCardioEntryWithDuration(CardioEntry entry, String value) {
-        Integer durationMinutes = parsePositiveWholeNumber(value, "/duration");
+    private static CardioEntry createCardioEntryWithDuration(CardioEntry entry, String value, Ui ui) {
+        Integer durationMinutes = parsePositiveWholeNumber(value, "/duration", ui);
         return durationMinutes == null ? null
                 : new CardioEntry(entry.getName(), durationMinutes, entry.getDistanceKm());
     }
@@ -361,8 +441,8 @@ public class FitLog {
      * @param value the supplied distance
      * @return the rebuilt entry, or {@code null} when the value is invalid
      */
-    private static CardioEntry createCardioEntryWithDistance(CardioEntry entry, String value) {
-        Double distanceKm = parsePositiveNumber(value, "/distance");
+    private static CardioEntry createCardioEntryWithDistance(CardioEntry entry, String value, Ui ui) {
+        Double distanceKm = parsePositiveNumber(value, "/distance", ui);
         return distanceKm == null ? null : new CardioEntry(entry.getName(), entry.getDurationMinutes(), distanceKm);
     }
 
@@ -373,59 +453,23 @@ public class FitLog {
      * @param entryCount the current number of entries
      * @return the zero-based index, or {@code null} when invalid
      */
-    private static Integer parseEntryIndex(String value, int entryCount) {
+    private static Integer parseEntryIndex(String value, int entryCount, Ui ui) {
         final int entryNumber;
         try {
             entryNumber = Integer.parseInt(value);
         } catch (NumberFormatException exception) {
-            System.out.println("Entry number must be a whole number, not '" + value + "'.");
+            ui.showMessage("Entry number must be a whole number, not '" + value + "'.");
             return null;
         }
         if (entryNumber <= 0) {
-            System.out.println("Entry number must be greater than zero.");
+            ui.showMessage("Entry number must be greater than zero.");
             return null;
         }
         if (entryNumber > entryCount) {
-            System.out.println("Entry " + entryNumber + " does not exist. Use list to view entry numbers.");
+            ui.showMessage("Entry " + entryNumber + " does not exist. Use list to view entry numbers.");
             return null;
         }
         return entryNumber - 1;
-    }
-
-    /**
-     * Checks whether an entry strictly improves on every other matching entry.
-     *
-     * @param candidate the entry being logged or edited
-     * @param entries the current session's entries
-     * @param excludedIndex the entry to exclude during an edit, or {@code -1} when logging
-     * @return whether the candidate is a new personal record
-     */
-    private static boolean isPersonalRecord(ExerciseEntry candidate, List<ExerciseEntry> entries,
-            int excludedIndex) {
-        boolean hasPriorMatchingEntry = false;
-        String candidateName = normaliseExerciseName(candidate.getName());
-        for (int index = 0; index < entries.size(); index++) {
-            ExerciseEntry existingEntry = entries.get(index);
-            if (index == excludedIndex || existingEntry.getClass() != candidate.getClass()
-                    || !normaliseExerciseName(existingEntry.getName()).equals(candidateName)) {
-                continue;
-            }
-            hasPriorMatchingEntry = true;
-            if (candidate.getPrMetric() <= existingEntry.getPrMetric()) {
-                return false;
-            }
-        }
-        return hasPriorMatchingEntry;
-    }
-
-    /**
-     * Converts an exercise name into a consistent comparison key.
-     *
-     * @param name the exercise name to normalise
-     * @return a trimmed, whitespace-normalised, lowercase comparison key
-     */
-    private static String normaliseExerciseName(String name) {
-        return name.trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
     }
 
     /**
@@ -433,8 +477,8 @@ public class FitLog {
      *
      * @param entry the entry that established the personal record
      */
-    private static void printPrNotification(ExerciseEntry entry) {
-        System.out.println("New PR! " + entry.getPrDescription());
+    private static void printPrNotification(ExerciseEntry entry, Ui ui) {
+        ui.showMessage("New PR! " + entry.getPrDescription());
     }
 
     /**
@@ -489,16 +533,16 @@ public class FitLog {
      * @param flag  the option the value belongs to
      * @return the parsed value, or {@code null} when invalid
      */
-    private static Integer parsePositiveWholeNumber(String value, String flag) {
+    private static Integer parsePositiveWholeNumber(String value, String flag, Ui ui) {
         try {
             int number = Integer.parseInt(value);
             if (number <= 0) {
-                System.out.println(flag + " must be a whole number greater than zero.");
+                ui.showMessage(flag + " must be a whole number greater than zero.");
                 return null;
             }
             return number;
         } catch (NumberFormatException exception) {
-            System.out.println(flag + " needs a positive whole number, not '" + value + "'.");
+            ui.showMessage(flag + " needs a positive whole number, not '" + value + "'.");
             return null;
         }
     }
@@ -511,16 +555,16 @@ public class FitLog {
      * @param flag  the option the value belongs to
      * @return the parsed value, or {@code null} when invalid
      */
-    private static Double parsePositiveNumber(String value, String flag) {
+    private static Double parsePositiveNumber(String value, String flag, Ui ui) {
         try {
             double number = Double.parseDouble(value);
             if (!Double.isFinite(number) || number <= 0) {
-                System.out.println(flag + " must be a finite number greater than zero.");
+                ui.showMessage(flag + " must be a finite number greater than zero.");
                 return null;
             }
             return number;
         } catch (NumberFormatException exception) {
-            System.out.println(flag + " needs a positive number, not '" + value + "'.");
+            ui.showMessage(flag + " needs a positive number, not '" + value + "'.");
             return null;
         }
     }
