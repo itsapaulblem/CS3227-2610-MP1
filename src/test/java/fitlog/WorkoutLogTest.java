@@ -1,0 +1,123 @@
+package fitlog;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+/**
+ * Tests collection-level workout logging, personal-record, and search behaviour.
+ */
+class WorkoutLogTest {
+
+    @Test
+    void firstEntryForExerciseIsNotPersonalRecord() {
+        WorkoutLog log = new WorkoutLog();
+        StrengthEntry candidate = new StrengthEntry("bench press", 3, 10, 80.0);
+
+        assertFalse(log.isPersonalRecord(candidate, -1));
+    }
+
+    @Test
+    void heavierStrengthEntryIsPersonalRecord() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new StrengthEntry("bench press", 3, 10, 80.0));
+        StrengthEntry candidate = new StrengthEntry("bench press", 3, 8, 82.5);
+
+        assertTrue(log.isPersonalRecord(candidate, -1));
+    }
+
+    @Test
+    void tiedStrengthWeightIsNotPersonalRecord() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new StrengthEntry("bench press", 3, 10, 80.0));
+        StrengthEntry candidate = new StrengthEntry("bench press", 4, 6, 80.0);
+
+        assertFalse(log.isPersonalRecord(candidate, -1));
+    }
+
+    @Test
+    void lighterStrengthWeightIsNotPersonalRecord() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new StrengthEntry("bench press", 3, 10, 80.0));
+        StrengthEntry candidate = new StrengthEntry("bench press", 3, 12, 70.0);
+
+        assertFalse(log.isPersonalRecord(candidate, -1));
+    }
+
+    @Test
+    void personalRecordMatchesNamesCaseInsensitivelyAndWithNormalisedWhitespace() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new StrengthEntry("Bench   Press", 3, 10, 80.0));
+        StrengthEntry candidate = new StrengthEntry(" bench press ", 3, 8, 82.5);
+
+        assertTrue(log.isPersonalRecord(candidate, -1));
+    }
+
+    @Test
+    void differentExerciseNamesDoNotAffectPersonalRecord() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new StrengthEntry("squat", 3, 5, 100.0));
+        StrengthEntry candidate = new StrengthEntry("bench press", 3, 10, 80.0);
+
+        assertFalse(log.isPersonalRecord(candidate, -1));
+    }
+
+    @Test
+    void differentEntryTypesDoNotCompeteForPersonalRecords() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new CardioEntry("run", 30, 5.0));
+        StrengthEntry candidate = new StrengthEntry("run", 3, 10, 80.0);
+
+        assertFalse(log.isPersonalRecord(candidate, -1));
+    }
+
+    @Test
+    void editingOnlyMatchingEntryIsNotPersonalRecord() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new StrengthEntry("bench press", 3, 10, 80.0));
+        StrengthEntry candidate = new StrengthEntry("bench press", 3, 10, 82.5);
+
+        assertFalse(log.isPersonalRecord(candidate, 0));
+    }
+
+    @Test
+    void editingEntryThatBeatsAnotherMatchingEntryIsPersonalRecord() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new StrengthEntry("bench press", 3, 10, 80.0));
+        log.add(new StrengthEntry("bench press", 3, 8, 70.0));
+        StrengthEntry candidate = new StrengthEntry("bench press", 3, 8, 85.0);
+
+        assertTrue(log.isPersonalRecord(candidate, 1));
+    }
+
+    @Test
+    void findByNameMatchesCaseInsensitiveSubstringsWithOriginalPositions() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new StrengthEntry("bench press", 3, 10, 80.0));
+        log.add(new CardioEntry("run", 30, null));
+        log.add(new StrengthEntry("overhead press", 3, 8, 40.0));
+
+        List<WorkoutLog.EntryMatch> matches = log.findByName("PRESS");
+
+        assertEquals(2, matches.size());
+        assertEquals(1, matches.get(0).position());
+        assertEquals("bench press", matches.get(0).entry().getName());
+        assertEquals(3, matches.get(1).position());
+        assertEquals("overhead press", matches.get(1).entry().getName());
+    }
+
+    @Test
+    void findByNameReturnsEmptyWhenNothingMatches() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new StrengthEntry("bench press", 3, 10, 80.0));
+        log.add(new CardioEntry("run", 30, null));
+
+        List<WorkoutLog.EntryMatch> matches = log.findByName("squat");
+
+        assertTrue(matches.isEmpty());
+    }
+}
