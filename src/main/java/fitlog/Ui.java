@@ -1,36 +1,41 @@
 package fitlog;
 
-import java.util.Scanner;
-
 /**
- * Handles console input and output for the FitLog application.
+ * Receives categorised feedback from FitLog operations.
  */
-public class Ui {
-    private final Scanner scanner;
-
+public interface Ui {
     /**
-     * Creates a UI that reads commands from standard input.
-     */
-    public Ui() {
-        scanner = new Scanner(System.in);
-    }
-
-    /**
-     * Displays the command prompt and reads the next line of input.
+     * Displays neutral information.
      *
-     * @return the next line, or {@code null} when input has ended
+     * @param message the information to display
      */
-    public String readCommand() {
-        System.out.print("> ");
-        return scanner.hasNextLine() ? scanner.nextLine() : null;
-    }
+    void showInfo(String message);
 
     /**
-     * Displays one message followed by a line break.
+     * Displays confirmation of a successful mutation.
      *
-     * @param message the message to display
+     * @param message the confirmation to display
      */
-    public void showMessage(String message) {
-        System.out.println(message);
-    }
+    void showSuccess(String message);
+
+    /**
+     * Displays a validation or command error.
+     *
+     * @param message the error to display
+     */
+    void showError(String message);
+
+    /**
+     * Displays a non-fatal warning.
+     *
+     * @param message the warning to display
+     */
+    void showWarning(String message);
+
+    /**
+     * Displays a personal-record notification.
+     *
+     * @param message the personal-record message to display
+     */
+    void showPersonalRecord(String message);
 }

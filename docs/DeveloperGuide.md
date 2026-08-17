@@ -5,14 +5,14 @@
 FitLog is organised into a small command-line application with the following
 responsibilities:
 
-- `FitLog` starts the application, loads saved entries, and owns the command
-  parsing and dispatch flow. `resolveCommand` routes a trimmed input line to the
-  relevant parser, while `executeCommand` performs the parsed command and decides
-  whether the application should exit. It also contains the shared log and edit
-  validation helpers.
-- `Ui` owns the `Scanner`, prints the `> ` prompt, reads a command, and prints all
-  user-facing messages. It returns `null` at end-of-file so `FitLog` can exit
-  gracefully.
+- `FitLog` is the console entry point. It reads console commands and passes them
+  to a controller until the user exits or input ends.
+- `FitLogController` owns startup loading, command parsing, dispatch, the current
+  `WorkoutLog`, and the `Storage` service. Its `start()` method emits the startup
+  feedback, and `submit(String)` resolves and executes one command.
+- `Ui` is an output interface with separate information, success, error, warning,
+  and PR feedback methods. `ConsoleUi` implements it with plain console output,
+  owns the `Scanner`, prints the `> ` prompt, and returns `null` at end-of-file.
 - `WorkoutLog` owns the in-memory `List<ExerciseEntry>`. It provides add, delete,
   replace, lookup, and listing operations, case-insensitive substring search with
   original list positions, normalised exact-name lookup for progression, and
@@ -27,9 +27,10 @@ responsibilities:
   represent successfully parsed commands; validation errors are reported during
   parsing before a command record is created.
 
-At runtime, `FitLog` reads through `Ui`, resolves the input into a `Command`, uses
+At runtime, `FitLog` reads through `ConsoleUi` and submits input to
+`FitLogController`. The controller resolves the input into a `Command`, uses
 `WorkoutLog` to perform collection operations, asks `Storage` to save successful
-mutations, and returns output through `Ui`.
+mutations, and returns categorised feedback through `Ui`.
 
 ## Design decisions
 
@@ -75,7 +76,7 @@ entry-formatting logic.
 
 ### Numeric parser coverage
 
-The numeric parsers are `FitLog`'s `parsePositiveWholeNumber` and
+The numeric parsers are `FitLogController`'s `parsePositiveWholeNumber` and
 `parsePositiveNumber` methods. The current regression transcript exercises the
 following numeric-parser edge case:
 
