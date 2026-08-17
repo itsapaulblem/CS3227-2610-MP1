@@ -2,3 +2,4 @@ target/
 build/
 *.class
 .DS_Store
+data/fitlog.txt

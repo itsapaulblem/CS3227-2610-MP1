@@ -1,3 +1,5 @@
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -18,8 +20,26 @@ public class FitLog {
     public static void main(String[] args) {
         Ui ui = new Ui();
         WorkoutLog entries = new WorkoutLog();
+        Storage storage = new Storage(Path.of("data", "fitlog.txt"));
+        Storage.LoadResult loadResult = null;
+        IOException loadFailure = null;
+        try {
+            loadResult = storage.load();
+            for (ExerciseEntry entry : loadResult.entries()) {
+                entries.add(entry);
+            }
+        } catch (IOException exception) {
+            loadFailure = exception;
+        }
 
         ui.showMessage("Welcome to FitLog!");
+        if (loadFailure != null) {
+            ui.showMessage("Warning: could not load saved entries: " + loadFailure.getMessage());
+        } else {
+            for (String warning : loadResult.warnings()) {
+                ui.showMessage(warning);
+            }
+        }
         ui.showMessage("What would you like to log today?");
 
         while (true) {
@@ -35,7 +55,7 @@ public class FitLog {
             if (resolvedCommand == null) {
                 continue;
             }
-            if (executeCommand(resolvedCommand, entries, ui)) {
+            if (executeCommand(resolvedCommand, entries, storage, ui)) {
                 break;
             }
         }
@@ -130,7 +150,7 @@ public class FitLog {
      * @param ui the console UI for output
      * @return whether FitLog should exit after execution
      */
-    private static boolean executeCommand(Command command, WorkoutLog entries, Ui ui) {
+    private static boolean executeCommand(Command command, WorkoutLog entries, Storage storage, Ui ui) {
         return switch (command) {
         case ByeCommand ignored -> {
             ui.showMessage("Goodbye! Keep training.");
@@ -147,10 +167,11 @@ public class FitLog {
         case DeleteCommand deleteCommand -> {
             ExerciseEntry removedEntry = entries.delete(deleteCommand.index());
             ui.showMessage("Removed: " + removedEntry.getName() + " - " + removedEntry.getDetails());
+            saveEntries(storage, entries, ui);
             yield false;
         }
         case EditCommand editCommand -> {
-            executeEditCommand(editCommand, entries, ui);
+            executeEditCommand(editCommand, entries, storage, ui);
             yield false;
         }
         case LogStrengthCommand logCommand -> {
@@ -162,6 +183,7 @@ public class FitLog {
             if (isPersonalRecord) {
                 printPrNotification(entry, ui);
             }
+            saveEntries(storage, entries, ui);
             yield false;
         }
         case LogCardioCommand logCommand -> {
@@ -173,6 +195,7 @@ public class FitLog {
             if (isPersonalRecord) {
                 printPrNotification(entry, ui);
             }
+            saveEntries(storage, entries, ui);
             yield false;
         }
         };
@@ -344,7 +367,7 @@ public class FitLog {
      * @param entries the current session's entries
      * @param ui the console UI for output and value-validation errors
      */
-    private static void executeEditCommand(EditCommand command, WorkoutLog entries, Ui ui) {
+    private static void executeEditCommand(EditCommand command, WorkoutLog entries, Storage storage, Ui ui) {
         ExerciseEntry existingEntry = entries.get(command.index());
         ExerciseEntry updatedEntry = createUpdatedEntry(existingEntry, command.field(), command.value(), ui);
         if (updatedEntry == null) {
@@ -355,6 +378,22 @@ public class FitLog {
         ui.showMessage("Updated: " + updatedEntry.getName() + " - " + updatedEntry.getDetails());
         if (isPersonalRecord) {
             printPrNotification(updatedEntry, ui);
+        }
+        saveEntries(storage, entries, ui);
+    }
+
+    /**
+     * Saves the current entries and reports a warning if persistence fails.
+     *
+     * @param storage the storage service to use
+     * @param entries the entries to save
+     * @param ui the console UI for save failure warnings
+     */
+    private static void saveEntries(Storage storage, WorkoutLog entries, Ui ui) {
+        try {
+            storage.save(entries.getEntries());
+        } catch (IOException exception) {
+            ui.showMessage("Warning: could not save entries: " + exception.getMessage());
         }
     }
 

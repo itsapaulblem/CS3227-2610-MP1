@@ -4,6 +4,9 @@ This document records the expected console behaviour before the UI extraction.
 Each section starts a fresh FitLog session unless stated otherwise. Lines beginning
 with `>` are commands entered by the user.
 
+For the non-persistence sections, run each session with a fresh `data/` directory
+so entries from an earlier scenario do not affect the result.
+
 ## Valid strength and cardio entries
 
 ```text
@@ -95,3 +98,51 @@ New PR! Heaviest bench press: 85kg
 
 The first log has no PR notification, tied weight has no notification, and a
 strictly heavier logged or edited entry has one.
+
+## Persistence
+
+On a first run with no `data/fitlog.txt` file:
+
+```text
+Welcome to FitLog!
+What would you like to log today?
+> log strength bench press /sets 3 /reps 10 /weight 80
+Logged: bench press - 3 sets x 10 reps @ 80kg
+> log cardio run /duration 30 /distance 5
+Logged: run - 30 min, 5km
+> bye
+Goodbye! Keep training.
+```
+
+After restarting from the same directory:
+
+```text
+Welcome to FitLog!
+What would you like to log today?
+> list
+1. [Strength] bench press - 3 sets x 10 reps @ 80kg
+2. [Cardio] run - 30 min, 5km
+> bye
+Goodbye! Keep training.
+```
+
+If the storage file contains a malformed second line between valid entries:
+
+```text
+strength	bench press	3	10	80.0
+this is not a valid entry
+cardio	run	30	5.0
+```
+
+Startup reports the skipped line and keeps the valid ones:
+
+```text
+Welcome to FitLog!
+Warning: skipped malformed entry on line 2.
+What would you like to log today?
+> list
+1. [Strength] bench press - 3 sets x 10 reps @ 80kg
+2. [Cardio] run - 30 min, 5km
+> bye
+Goodbye! Keep training.
+```
