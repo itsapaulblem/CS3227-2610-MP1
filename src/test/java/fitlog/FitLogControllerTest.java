@@ -111,6 +111,61 @@ class FitLogControllerTest {
                 ui.messages());
     }
 
+    @Test
+    void startReportsLoadFailureFromStorageAbstraction() {
+        RecordingUi ui = new RecordingUi();
+        EntryStorage storage = new ConfigurableEntryStorage(true, false);
+        FitLogController controller = new FitLogController(ui, storage);
+
+        controller.start();
+
+        assertEquals(List.of(
+                "Welcome to FitLog!",
+                "Warning: could not load saved entries: simulated load failure",
+                "What would you like to log today?"), ui.messages());
+    }
+
+    @Test
+    void mutationReportsSaveFailureFromStorageAbstraction() {
+        RecordingUi ui = new RecordingUi();
+        EntryStorage storage = new ConfigurableEntryStorage(false, true);
+        FitLogController controller = new FitLogController(ui, storage);
+        controller.start();
+        ui.clearMessages();
+
+        controller.submit("log cardio run /duration 30");
+
+        assertEquals(List.of(
+                "Logged: run - 30 min",
+                "Warning: could not save entries: simulated save failure"), ui.messages());
+    }
+
+    /** Test double that can fail either storage operation without filesystem setup. */
+    private static final class ConfigurableEntryStorage implements EntryStorage {
+        private final boolean failLoad;
+        private final boolean failSave;
+
+        private ConfigurableEntryStorage(boolean failLoad, boolean failSave) {
+            this.failLoad = failLoad;
+            this.failSave = failSave;
+        }
+
+        @Override
+        public LoadResult load() throws IOException {
+            if (failLoad) {
+                throw new IOException("simulated load failure");
+            }
+            return new LoadResult(List.of(), List.of());
+        }
+
+        @Override
+        public void save(List<ExerciseEntry> entries) throws IOException {
+            if (failSave) {
+                throw new IOException("simulated save failure");
+            }
+        }
+    }
+
     /**
      * Captures controller feedback without using either the console or JavaFX UI.
      */

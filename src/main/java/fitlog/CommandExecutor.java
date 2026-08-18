@@ -21,7 +21,7 @@ final class CommandExecutor {
         return false;
     }
 
-    static boolean executeDelete(DeleteCommand command, WorkoutLog entries, Storage storage, Ui ui) {
+    static boolean executeDelete(DeleteCommand command, WorkoutLog entries, EntryStorage storage, Ui ui) {
         ExerciseEntry removedEntry = entries.delete(command.index());
         ui.showSuccess("Removed: " + removedEntry.getName() + " - " + removedEntry.getDetails());
         saveEntries(storage, entries, ui);
@@ -29,21 +29,21 @@ final class CommandExecutor {
     }
 
     static boolean executeLogStrength(LogStrengthCommand command, WorkoutLog entries,
-            Storage storage, Ui ui) {
+            EntryStorage storage, Ui ui) {
         StrengthEntry entry = new StrengthEntry(command.name(), command.sets(), command.reps(), command.weightKg());
         addEntry(entry, entries, storage, ui);
         return false;
     }
 
     static boolean executeLogCardio(LogCardioCommand command, WorkoutLog entries,
-            Storage storage, Ui ui) {
+            EntryStorage storage, Ui ui) {
         CardioEntry entry = new CardioEntry(command.name(), command.durationMinutes(), command.distanceKm());
         addEntry(entry, entries, storage, ui);
         return false;
     }
 
     /** Performs the behaviour shared by strength and cardio logging. */
-    private static void addEntry(ExerciseEntry entry, WorkoutLog entries, Storage storage, Ui ui) {
+    private static void addEntry(ExerciseEntry entry, WorkoutLog entries, EntryStorage storage, Ui ui) {
         boolean isPersonalRecord = entries.isPersonalRecord(entry, -1);
         entries.add(entry);
         ui.showSuccess("Logged: " + entry.getName() + " - " + entry.getDetails());
@@ -86,7 +86,7 @@ final class CommandExecutor {
         return false;
     }
 
-    static boolean executeEdit(EditCommand command, WorkoutLog entries, Storage storage, Ui ui) {
+    static boolean executeEdit(EditCommand command, WorkoutLog entries, EntryStorage storage, Ui ui) {
         ExerciseEntry existingEntry = entries.get(command.index());
         ExerciseEntry updatedEntry = EntryEditor.createUpdatedEntry(
                 existingEntry, command.field(), command.value(), ui);
@@ -103,7 +103,7 @@ final class CommandExecutor {
         return false;
     }
 
-    private static void saveEntries(Storage storage, WorkoutLog entries, Ui ui) {
+    private static void saveEntries(EntryStorage storage, WorkoutLog entries, Ui ui) {
         try {
             storage.save(entries.getEntries());
         } catch (IOException exception) {

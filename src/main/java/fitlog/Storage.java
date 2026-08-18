@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Loads and saves workout entries using a tab-separated text file.
  */
-public class Storage {
+public class Storage implements EntryStorage {
     private final Path filePath;
 
     /**
@@ -32,11 +32,12 @@ public class Storage {
      * @return the loaded entries and warnings
      * @throws IOException if the data file cannot be read
      */
-    public LoadResult load() throws IOException {
+    @Override
+    public EntryStorage.LoadResult load() throws IOException {
         List<ExerciseEntry> entries = new ArrayList<>();
         List<String> warnings = new ArrayList<>();
         if (!Files.exists(filePath)) {
-            return new LoadResult(entries, warnings);
+            return new EntryStorage.LoadResult(entries, warnings);
         }
 
         List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
@@ -48,7 +49,7 @@ public class Storage {
                 entries.add(entry);
             }
         }
-        return new LoadResult(entries, warnings);
+        return new EntryStorage.LoadResult(entries, warnings);
     }
 
     /**
@@ -57,6 +58,7 @@ public class Storage {
      * @param entries the entries to save
      * @throws IOException if the entries cannot be written
      */
+    @Override
     public void save(List<ExerciseEntry> entries) throws IOException {
         Path parentDirectory = filePath.getParent();
         if (parentDirectory != null) {
@@ -187,12 +189,4 @@ public class Storage {
         }
     }
 
-    /**
-     * Contains entries loaded from storage and warnings about skipped lines.
-     *
-     * @param entries the valid loaded entries
-     * @param warnings warnings generated while loading
-     */
-    public record LoadResult(List<ExerciseEntry> entries, List<String> warnings) {
-    }
 }
