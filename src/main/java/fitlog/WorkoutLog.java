@@ -121,10 +121,11 @@ public class WorkoutLog {
      */
     public TrainingTotals calculateTotals() {
         double strengthVolume = 0;
-        int cardioDuration = 0;
+        long cardioDuration = 0;
         for (ExerciseEntry entry : entries) {
             if (entry instanceof StrengthEntry strengthEntry) {
-                strengthVolume += strengthEntry.getSets() * strengthEntry.getReps() * strengthEntry.getWeightKg();
+                strengthVolume += (double) strengthEntry.getSets()
+                        * strengthEntry.getReps() * strengthEntry.getWeightKg();
             } else if (entry instanceof CardioEntry cardioEntry) {
                 cardioDuration += cardioEntry.getDurationMinutes();
             }
@@ -185,8 +186,9 @@ public class WorkoutLog {
      * Holds calculated totals for all entries in a workout log.
      *
      * @param strengthVolume the sum of sets × reps × weight for strength entries
-     * @param cardioDurationMinutes the sum of minutes for cardio entries
+     * @param cardioDurationMinutes the sum of minutes for cardio entries, stored as
+     *                              a long to avoid overflowing accumulated durations
      */
-    public record TrainingTotals(double strengthVolume, int cardioDurationMinutes) {
+    public record TrainingTotals(double strengthVolume, long cardioDurationMinutes) {
     }
 }

@@ -11,9 +11,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Tests loading and saving tab-separated workout-entry storage files.
@@ -142,6 +146,53 @@ class StorageTest {
         assertTrue(result.warnings().get(0).contains("line 2"));
     }
 
+    @ParameterizedTest
+    @MethodSource("malformedSavedLines")
+    void loadRejectsEachMalformedFileShape(String line, @TempDir Path tempDir) throws IOException {
+        Path file = tempDir.resolve("fitlog.txt");
+        Files.write(file, List.of(line));
+
+        EntryStorage.LoadResult result = new Storage(file).load();
+
+        assertTrue(result.entries().isEmpty());
+        assertEquals(List.of("Warning: skipped malformed entry on line 1."), result.warnings());
+    }
+
+    private static Stream<Arguments> malformedSavedLines() {
+        return Stream.of(
+                Arguments.of(""),
+                Arguments.of("unknown\trun\t30\t5.0"),
+                Arguments.of("strength\tbench\t3\t10"),
+                Arguments.of("strength\tbench\t3\t10\t80\textra\textra"),
+                Arguments.of("cardio\trun\t30"),
+                Arguments.of("cardio\trun\t30\t5\textra\textra"),
+                Arguments.of("strength\tbench\t3\t10\t80\tnot-a-time"),
+                Arguments.of("cardio\trun\t30\t5\t2026-99-99T25:61"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidSavedValues")
+    void loadRejectsInvalidDomainValues(String line, @TempDir Path tempDir) throws IOException {
+        Path file = tempDir.resolve("fitlog.txt");
+        Files.write(file, List.of(line));
+
+        EntryStorage.LoadResult result = new Storage(file).load();
+
+        assertTrue(result.entries().isEmpty());
+        assertEquals(1, result.warnings().size());
+    }
+
+    private static Stream<Arguments> invalidSavedValues() {
+        return Stream.of(
+                Arguments.of("strength\tbench\t0\t10\t80"),
+                Arguments.of("strength\tbench\t3\t-1\t80"),
+                Arguments.of("strength\tbench\t3\t10\tNaN"),
+                Arguments.of("strength\tbench\t3\t10\tInfinity"),
+                Arguments.of("cardio\trun\t-1\t5"),
+                Arguments.of("cardio\trun\t30\t0"),
+                Arguments.of("cardio\trun\t30\t-Infinity"));
+    }
+
     @Test
     void saveThenLoadPreservesAllEntryData(@TempDir Path tempDir) throws IOException {
         Path file = tempDir.resolve("fitlog.txt");
@@ -180,6 +231,57 @@ class StorageTest {
         assertEquals(strengthTime, result.entries().get(0).getLoggedAt());
         assertEquals(cardioTime, result.entries().get(1).getLoggedAt());
         assertTrue(result.warnings().isEmpty());
+    }
+
+    @Test
+    void loadReadsExplicitTimestamps(@TempDir Path tempDir) throws IOException {
+        Path file = tempDir.resolve("fitlog.txt");
+        Files.write(file, List.of(
+                "strength\tbench\t3\t10\t80\t2026-08-17T09:15:30",
+                "cardio\trun\t30\t\t2026-08-18T18:45"));
+
+        EntryStorage.LoadResult result = new Storage(file).load();
+
+        assertEquals(LocalDateTime.of(2026, 8, 17, 9, 15, 30), result.entries().get(0).getLoggedAt());
+        assertEquals(LocalDateTime.of(2026, 8, 18, 18, 45), result.entries().get(1).getLoggedAt());
+        assertTrue(result.warnings().isEmpty());
+    }
+
+    @Test
+    void saveThenLoadPreservesUnknownLegacyTimestamp(@TempDir Path tempDir) throws IOException {
+        Storage storage = new Storage(tempDir.resolve("fitlog.txt"));
+
+        storage.save(List.of(new CardioEntry("run", 30, null, null)));
+        EntryStorage.LoadResult result = storage.load();
+
+        assertNull(result.entries().get(0).getLoggedAt());
+        assertTrue(result.warnings().isEmpty());
+    }
+
+    @Test
+    void saveReplacesExistingContents(@TempDir Path tempDir) throws IOException {
+        Path file = tempDir.resolve("fitlog.txt");
+        Storage storage = new Storage(file);
+        storage.save(List.of(new StrengthEntry("bench", 3, 10, 80)));
+
+        storage.save(List.of(new CardioEntry("run", 30, null)));
+        EntryStorage.LoadResult result = storage.load();
+
+        assertEquals(1, result.entries().size());
+        assertEquals("run", result.entries().get(0).getName());
+    }
+
+    @Test
+    void saveEmptyListClearsExistingContents(@TempDir Path tempDir) throws IOException {
+        Path file = tempDir.resolve("fitlog.txt");
+        Storage storage = new Storage(file);
+        storage.save(List.of(new StrengthEntry("bench", 3, 10, 80)));
+
+        storage.save(List.of());
+
+        assertTrue(Files.exists(file));
+        assertTrue(Files.readAllLines(file).isEmpty());
+        assertTrue(storage.load().entries().isEmpty());
     }
 
     @Test

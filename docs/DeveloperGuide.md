@@ -178,61 +178,40 @@ it remain in the returned `LoadResult`.
 
 ## Testing
 
-FitLog's numeric option parsers are intentionally tested through transcript-based
-integration scenarios rather than direct unit tests. They report validation errors
-through `Ui`, so isolating them would require a wider result-object refactor across
-command parsing and editing. Selected behavior is covered by the documented
-command transcripts, while focused unit tests cover the collection, persistence,
-and entry-formatting logic. The remaining numeric-parser coverage gaps are listed
-below.
+FitLog uses focused unit tests for command parsing, execution, editing, formatting,
+domain operations, and persistence. Controller tests cover the boundaries between
+those components, while the console transcript remains a manual end-to-end
+regression reference.
 
 ### Numeric parser coverage
 
-The numeric parsers are `FitLogController`'s `parsePositiveWholeNumber` and
-`parsePositiveNumber` methods. The current regression transcript exercises the
-following numeric-parser edge case:
-
-- Non-numeric whole number: `log strength bench press /sets 3 /reps ten /weight 80`
-  in [Log validation errors](pre-refactor-transcript.md#log-validation-errors)
-  expects `/reps needs a positive whole number, not 'ten'.`.
-
-The following cases are supported by the parsers but are **not currently covered**
-by `pre-refactor-transcript.md`. Add them to the transcript before relying on it as
-complete numeric-parser regression coverage:
-
-- Zero values, for example `/sets 0` and `/weight 0`.
-- Negative values, for example `/duration -1` and `/distance -5`.
-- Integer overflow, for example `/reps 2147483648`.
-- `NaN`, for example `/weight NaN`.
-- Infinity, for example `/distance Infinity`.
-
-When changing numeric parsing or validation messages, run the complete
-`pre-refactor-transcript.md` scenarios in addition to `./gradlew test`.
+`CommandParserTest` covers valid numeric values together with zero, negative,
+non-numeric, fractional whole-number, `NaN`, and infinite inputs. Constructor and
+storage tests independently verify the same domain boundaries. When changing
+numeric parsing or validation messages, run `./gradlew test` and the relevant
+`pre-refactor-transcript.md` scenarios.
 
 ### Automated tests
 
-JUnit tests under `src/test/java/fitlog` cover the highest-value domain and
-persistence behaviour:
+JUnit tests under `src/test/java/fitlog` cover the implemented non-GUI behaviour:
 
-- `WorkoutLogTest` covers PR comparison (first entry, ties, lower values,
-  normalised names, type separation, and edit exclusion) and search matching with
-  original positions, normalised progression matching, and volume totals.
-- `StorageTest` covers loading valid strength/cardio lines, skipping malformed
-  lines with warnings, save/load round trips, and parent-directory creation.
-- `ExerciseEntryTest` covers strength/cardio detail formatting and PR metric and
-  description formatting, including whole and decimal measurements and logging-
-  time display.
-- `StorageTest` also covers timestamp round trips and backward-compatible loading
-  of timestamp-less legacy lines.
-- `FitLogControllerTest` covers timestamp preservation during edits, timestamp
-  display in `list` and `stats` output, help output, exact lowercase help matching,
-  and the guarantee that help does not create a storage file.
+- `CommandParserTest`, `CommandExecutorTest`, `EntryEditorTest`, and
+  `EntryFormatterTest` cover syntax validation, every command path, immutable field
+  updates, persistence triggers, PR notifications, and formatted output.
+- `WorkoutLogTest` covers collection operations, strength and cardio PR rules,
+  search semantics, read-only exposure, normal totals, and overflow boundaries.
+- `StorageTest` covers both entry formats, timestamps and legacy data, malformed
+  shapes and values, mixed valid/invalid input, replacement, empty saves, round
+  trips, and parent-directory creation.
+- `ExerciseEntryTest` covers accessors, formatting, timestamps, PR values, and
+  constructor invariants.
+- `FitLogControllerTest`, `CommandRegistryTest`, and `ConsoleUiTest` cover component
+  coordination, storage failures and warnings, extensible registration, EOF, and
+  console rendering.
 
 `docs/pre-refactor-transcript.md` is the manual regression baseline for console
-behaviour: command parsing, user-facing validation messages, edit/delete flows,
-EOF handling, PR notifications, and persistence startup behaviour. Numeric
-validation coverage in that transcript is currently incomplete; see the gaps in
-the Numeric parser coverage section above.
+behaviour and GUI presentation. JavaFX layout and styling remain manual checks
+because they depend on a graphical runtime and visual inspection.
 
 ## Software engineering process
 
