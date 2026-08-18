@@ -98,7 +98,9 @@ implicit dependencies between `shadowJar`, `startScripts`, `distTar`, and
 `StrengthEntry` and `CardioEntry` fields are final. An `edit` command validates the
 new value and reconstructs a replacement entry, which `WorkoutLog.replace` places
 at the same index. This avoids partially updated values and preserves each entry's
-simple value-object behaviour.
+simple value-object behaviour. Their constructors also enforce the domain
+invariants, so entries created outside the command parser cannot contain blank
+names, non-positive counts or durations, or non-finite/non-positive measurements.
 
 ### PRs are computed on demand
 
