@@ -31,8 +31,7 @@ new logs still need to be reviewed, committed, and pushed before submission.
 > "Create a README.md-style user guide for FitLog ... Base every command's syntax
 > and example output strictly on FitLog's actual current behavior."
 
-> "How do I update build.gradle.kts to create a fat/shadow JAR ... can you do it
-> for me."
+> "How do I update build.gradle.kts to create a fat/shadow JAR ... "
 
 Codex added documented assertions, expanded user/developer documentation,
 configured the Shadow plugin, and successfully ran `shadowJar`, producing
