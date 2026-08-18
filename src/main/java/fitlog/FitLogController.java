@@ -9,7 +9,7 @@ import java.io.IOException;
 public class FitLogController {
     private final Ui ui;
     private final WorkoutLog entries;
-    private final Storage storage;
+    private final EntryStorage storage;
     private final CommandRegistry commandRegistry;
 
     /**
@@ -18,12 +18,12 @@ public class FitLogController {
      * @param ui the destination for user feedback
      * @param storage the service used to load and save entries
      */
-    public FitLogController(Ui ui, Storage storage) {
+    public FitLogController(Ui ui, EntryStorage storage) {
         this(ui, storage, CommandRegistry.createDefault());
     }
 
     /** Creates a controller with an explicitly supplied command registry. */
-    FitLogController(Ui ui, Storage storage, CommandRegistry commandRegistry) {
+    FitLogController(Ui ui, EntryStorage storage, CommandRegistry commandRegistry) {
         this.ui = ui;
         this.storage = storage;
         this.commandRegistry = commandRegistry;
@@ -34,7 +34,7 @@ public class FitLogController {
      * Loads saved entries, reports load warnings, and displays the startup greeting.
      */
     public void start() {
-        Storage.LoadResult loadResult = null;
+        EntryStorage.LoadResult loadResult = null;
         IOException loadFailure = null;
         try {
             loadResult = storage.load();

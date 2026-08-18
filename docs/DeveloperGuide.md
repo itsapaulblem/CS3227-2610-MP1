@@ -38,8 +38,11 @@ and domain layer:
   replace, lookup, and listing operations, case-insensitive substring search with
   original list positions, normalised exact-name lookup for progression, and
   collection-level PR comparison and volume totals.
-- `Storage` owns file I/O only. It loads valid entries with per-line malformed-data
-  warnings and saves a supplied list to disk; it does not print user messages.
+- `EntryStorage` abstracts loading and saving entries so the controller and
+  command-execution pipeline do not depend on a persistence format. `Storage` is
+  the file-backed implementation: it loads valid entries with per-line
+  malformed-data warnings and saves a supplied list to disk without printing
+  user messages.
 - `ExerciseEntry` is the sealed shared abstraction for immutable `StrengthEntry`
   and `CardioEntry` values. These final classes are the only permitted entry
   types, matching FitLog's two exercise categories. The base class stores the
@@ -55,8 +58,9 @@ and domain layer:
 At runtime, either `FitLog`/`ConsoleUi` or `Launcher`/`FitLogGui` supplies input
 to `FitLogController`. The registry resolves the input into a `Command` and
 dispatches its registered executor. Command behaviour uses `WorkoutLog` for
-collection operations, `Storage` for successful mutations, and `Ui` for
-categorised feedback.
+collection operations, `EntryStorage` for successful mutations, and `Ui` for
+categorised feedback. Production supplies the file-backed `Storage`, while tests
+can substitute an in-memory implementation or precise failure test double.
 
 ### GUI reuse after the controller refactor
 

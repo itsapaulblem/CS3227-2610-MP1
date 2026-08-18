@@ -91,7 +91,7 @@ final class CommandRegistry {
     }
 
     /** Executes a command using the definition registered for its runtime type. */
-    boolean execute(Command command, WorkoutLog entries, Storage storage, Ui ui) {
+    boolean execute(Command command, WorkoutLog entries, EntryStorage storage, Ui ui) {
         for (CommandDefinition<?> definition : definitions) {
             if (definition.commandType().isInstance(command)) {
                 return executeWithDefinition(definition, command, entries, storage, ui);
@@ -109,7 +109,7 @@ final class CommandRegistry {
     }
 
     private <C extends Command> boolean executeWithDefinition(CommandDefinition<C> definition,
-            Command command, WorkoutLog entries, Storage storage, Ui ui) {
+            Command command, WorkoutLog entries, EntryStorage storage, Ui ui) {
         C typedCommand = definition.commandType().cast(command);
         return definition.executor().execute(typedCommand, entries, storage, ui, this);
     }

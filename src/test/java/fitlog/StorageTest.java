@@ -24,7 +24,7 @@ class StorageTest {
     void loadMissingFileReturnsNoEntriesAndNoWarnings(@TempDir Path tempDir) throws IOException {
         Storage storage = new Storage(tempDir.resolve("fitlog.txt"));
 
-        Storage.LoadResult result = storage.load();
+        EntryStorage.LoadResult result = storage.load();
 
         assertTrue(result.entries().isEmpty());
         assertTrue(result.warnings().isEmpty());
@@ -36,7 +36,7 @@ class StorageTest {
         Files.write(file, List.of("strength\tbench press\t3\t10\t80.0"));
         Storage storage = new Storage(file);
 
-        Storage.LoadResult result = storage.load();
+        EntryStorage.LoadResult result = storage.load();
 
         assertEquals(1, result.entries().size());
         StrengthEntry entry = assertInstanceOf(StrengthEntry.class, result.entries().get(0));
@@ -54,7 +54,7 @@ class StorageTest {
         Files.write(file, List.of("cardio\trun\t30\t5.0"));
         Storage storage = new Storage(file);
 
-        Storage.LoadResult result = storage.load();
+        EntryStorage.LoadResult result = storage.load();
 
         assertEquals(1, result.entries().size());
         CardioEntry entry = assertInstanceOf(CardioEntry.class, result.entries().get(0));
@@ -71,7 +71,7 @@ class StorageTest {
         Files.write(file, List.of("cardio\tstationary bike\t45\t"));
         Storage storage = new Storage(file);
 
-        Storage.LoadResult result = storage.load();
+        EntryStorage.LoadResult result = storage.load();
 
         assertEquals(1, result.entries().size());
         CardioEntry entry = assertInstanceOf(CardioEntry.class, result.entries().get(0));
@@ -88,7 +88,7 @@ class StorageTest {
         Files.write(file, List.of("strength\tbench press\tthree\t10\t80.0"));
         Storage storage = new Storage(file);
 
-        Storage.LoadResult result = storage.load();
+        EntryStorage.LoadResult result = storage.load();
 
         assertTrue(result.entries().isEmpty());
         assertEquals(1, result.warnings().size());
@@ -101,7 +101,7 @@ class StorageTest {
         Files.write(file, List.of("cardio\trun\t30\tfive"));
         Storage storage = new Storage(file);
 
-        Storage.LoadResult result = storage.load();
+        EntryStorage.LoadResult result = storage.load();
 
         assertTrue(result.entries().isEmpty());
         assertEquals(1, result.warnings().size());
@@ -117,7 +117,7 @@ class StorageTest {
                 "cardio\trun\t30\t5.0"));
         Storage storage = new Storage(file);
 
-        Storage.LoadResult result = storage.load();
+        EntryStorage.LoadResult result = storage.load();
 
         assertEquals(2, result.entries().size());
         assertEquals("bench press", result.entries().get(0).getName());
@@ -136,7 +136,7 @@ class StorageTest {
                 new CardioEntry("stationary bike", 45, null));
 
         storage.save(entries);
-        Storage.LoadResult result = storage.load();
+        EntryStorage.LoadResult result = storage.load();
 
         assertEquals(3, result.entries().size());
         assertEquals("bench press", result.entries().get(0).getName());
@@ -159,7 +159,7 @@ class StorageTest {
                 new CardioEntry("run", 30, 5.0, cardioTime));
 
         storage.save(entries);
-        Storage.LoadResult result = storage.load();
+        EntryStorage.LoadResult result = storage.load();
 
         assertEquals(strengthTime, result.entries().get(0).getLoggedAt());
         assertEquals(cardioTime, result.entries().get(1).getLoggedAt());

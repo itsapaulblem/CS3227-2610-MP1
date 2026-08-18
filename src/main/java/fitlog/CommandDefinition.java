@@ -26,6 +26,6 @@ record CommandDefinition<C extends Command>(Class<C> commandType, Predicate<Stri
     /** Executes a command using the application's shared services. */
     @FunctionalInterface
     interface Executor<C extends Command> {
-        boolean execute(C command, WorkoutLog entries, Storage storage, Ui ui, CommandRegistry registry);
+        boolean execute(C command, WorkoutLog entries, EntryStorage storage, Ui ui, CommandRegistry registry);
     }
 }
