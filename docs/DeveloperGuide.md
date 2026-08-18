@@ -159,19 +159,10 @@ it remain in the returned `LoadResult`.
 
 ## Testing
 
-<<<<<<< HEAD
 FitLog uses focused unit tests for command parsing, execution, editing, formatting,
 domain operations, and persistence. Controller tests cover the boundaries between
 those components, while the console transcript remains a manual end-to-end
 regression reference.
-=======
-FitLog's numeric option parsers are intentionally tested through transcript-based
-integration scenarios rather than direct unit tests. They report validation errors
-through `Ui`, so isolating them would require a wider result-object refactor across
-command parsing and editing. Their behavior is covered by the documented command
-transcripts, while focused unit tests cover the collection, persistence, and
-entry-formatting logic.
->>>>>>> cc84692d5aa9c0339df2900dfb10c46477e982f7
 
 ### Numeric parser coverage
 

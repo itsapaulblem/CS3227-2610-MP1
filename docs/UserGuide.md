@@ -325,7 +325,8 @@ volume
 
 Expected outcome: shows total strength volume (`sets × reps × weight`) and total
 cardio duration. These are loaded-log totals, not weekly totals, because FitLog
-does not yet filter entries by a date range.
+does not yet group or filter entries by workout date. Totals include every valid
+entry currently loaded, including large accumulated values.
 
 Console output:
 
@@ -457,6 +458,10 @@ prints a startup warning such as:
 Warning: skipped malformed entry on line 2.
 ```
 
+Saved entries follow the same validation rules as commands: names cannot be
+blank, counts and durations must be positive whole numbers, and supplied weights
+and distances must be finite numbers greater than zero.
+
 If the storage file itself cannot be loaded, startup reports `Warning: could not
 load saved entries: <reason>`. If saving fails, FitLog reports `Warning: could not
 save entries: <reason>` immediately after the successful in-memory operation.
@@ -477,6 +482,7 @@ guides to correcting input:
 | Repeated option | `Use /distance only once in a cardio entry.` |
 | Missing option value | `Provide a value after /weight.` |
 | Non-numeric whole-number value | `/reps needs a positive whole number, not 'ten'.` |
+| Whole number outside Java's supported integer range | `/reps needs a positive whole number, not '2147483648'.` |
 | Zero or negative whole-number value | `/sets must be a whole number greater than zero.` |
 | Non-numeric decimal value | `/weight needs a positive number, not 'heavy'.` |
 | Zero, negative, `NaN`, or infinity decimal value | `/weight must be a finite number greater than zero.` |
