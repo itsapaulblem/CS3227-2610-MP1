@@ -46,6 +46,14 @@ class CommandExecutorTest {
     }
 
     @Test
+    void listReportsWhenNoExercisesHaveBeenLogged() {
+        assertFalse(CommandExecutor.executeList(workoutLog, ui));
+
+        assertEquals("No exercises logged yet.", ui.onlyMessage());
+        assertEquals(0, storage.saveCount());
+    }
+
+    @Test
     void loggingStrengthSavesAndReportsNewPersonalRecord() {
         workoutLog.add(new StrengthEntry("Bench  Press", 3, 10, 80));
 

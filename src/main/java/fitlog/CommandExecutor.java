@@ -15,6 +15,11 @@ final class CommandExecutor {
     }
 
     static boolean executeList(WorkoutLog entries, Ui ui) {
+        if (entries.size() == 0) {
+            ui.showInfo("No exercises logged yet.");
+            return false;
+        }
+
         for (int index = 0; index < entries.size(); index++) {
             ui.showInfo(EntryFormatter.formatListEntry(index + 1, entries.get(index)));
         }
