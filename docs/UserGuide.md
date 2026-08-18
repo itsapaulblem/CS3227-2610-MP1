@@ -3,69 +3,92 @@
 Introducing FitLog: a workout logger for recording strength and cardio exercise,
 reviewing progress, and tracking personal records.
 
-## UI
+## Interfaces
 
 FitLog can run as either a JavaFX conversation-style GUI or a command-line interface (CLI). Both interfaces support the same commands and display the same FitLog responses.
 
-In the GUI, user commands are displayed in blue conversation bubbles, while FitLog's responses appear in categorised response bubbles. Help examples are shown below the corresponding command syntax in muted, italicised monospace bubbles, making them easy to distinguish from commands and responses.
+In the GUI, user commands are displayed in blue conversation bubbles, while FitLog's responses appear in categorised response bubbles.
 
 ![FitLog's JavaFX conversation interface](<../images/Screenshot 2026-08-17 182220.png>)
 
-### Tested environment
+## Getting started
 
-FitLog was developed and tested on Windows 11 using Java 25 and PowerShell.
+### Requirements
 
-### Building a release JAR
-
-Install Java 25 and confirm that it is active:
+After downloading or cloning the FitLog repository, open a terminal in the
+project root (the folder containing `gradlew` and `gradlew.bat`). Install Java
+25 and confirm that it is active:
 
 ```text
 java --version
 ```
 
-From the project root on Windows PowerShell, run:
+FitLog was developed and tested on Windows 11 using Java 25 and PowerShell.
+
+On macOS or Linux, make the Gradle wrapper executable if necessary:
+
+```bash
+chmod +x gradlew
+```
+
+### Starting FitLog
+
+The GUI is the recommended way to use FitLog. Gradle compiles and starts the
+application with a single command; a separate build step is not required.
+
+On Windows PowerShell, run:
+
+```powershell
+.\gradlew.bat run
+```
+
+On macOS or Linux, run:
+
+```bash
+./gradlew run
+```
+
+The GUI has a header, a full-width scrollable conversation view, and a command
+field with a **Send** button. Press Enter or click **Send** to submit a command.
+
+### Building a runnable GUI JAR
+
+This step is optional for normal use. To create a packaged copy of FitLog, remove
+old build output, run the tests, and build the JAR on Windows PowerShell:
 
 ```powershell
 .\gradlew.bat clean test shadowJar
 java -jar build\libs\fitlog.jar
 ```
 
-On macOS or Linux, run the equivalent commands:
+On macOS or Linux, run:
 
 ```bash
 ./gradlew clean test shadowJar
 java -jar build/libs/fitlog.jar
 ```
 
-If the Gradle wrapper is not executable on macOS or Linux, first run
-`chmod +x gradlew`. The build command removes old build output, runs the test
-suite, and creates the self-contained release JAR at `build/libs/fitlog.jar`.
-The second command launches that JAR so that the packaged application can be
-checked before release.
-
-### Starting the GUI
-
-Build the project with Java 25, then launch the JavaFX interface:
-
-```text
-./gradlew build
-./gradlew run
-```
-
-On PowerShell, use `./gradlew.bat build` and `./gradlew.bat run` if needed. The
-GUI has a header, a full-width scrollable conversation view, and a command field
-with a **Send** button. Press Enter or click **Send** to submit a command.
+The first command creates the runnable GUI JAR at `build/libs/fitlog.jar`. The
+second command launches it. Java 25 is still required to run the JAR.
 
 ### Starting the console command line interface (CLI)
 
-After building, start the console entry point explicitly:
+As an alternative to the GUI, compile FitLog and start its console interface on
+Windows PowerShell:
 
-```text
+```powershell
+.\gradlew.bat classes
+java -cp build\classes\java\main fitlog.FitLog
+```
+
+On macOS or Linux, use:
+
+```bash
+./gradlew classes
 java -cp build/classes/java/main fitlog.FitLog
 ```
 
-The console displays a `> ` prompt before each command. Ensure the `java` command
-uses Java 25.
+The console displays a `> ` prompt before each command.
 
 ## Logging a strength exercise
 
@@ -213,8 +236,17 @@ The GUI displays the removal as a green success bubble.
 
 ## Finding entries
 
-To search entry names, use `find` followed by a search term. Matching is
-case-insensitive and uses substring matching.
+To search exercise names, use `find` followed by any part of a name. The search
+term does not need to be the complete exercise name. For example, `find press`
+matches both `bench press` and `overhead press`. Capitalisation is ignored, so
+`find PRESS` produces the same matches. A search term may also be part of a
+single word: `find ch` matches `bench press` because `ch` appears within
+`bench`.
+
+The search term must still appear as a continuous sequence of characters in the
+exercise name. `find bench prss` does not match `bench press`, because `find`
+does not correct spelling mistakes. Use `stats` instead when you want entries
+for one complete exercise name only.
 
 Syntax:
 
@@ -244,8 +276,10 @@ The GUI displays the same matching lines as information bubbles.
 ## Viewing an exercise progression
 
 To see the personal-record metric for one exercise across its logged history, use
-`stats` followed by the exercise name. Names match after trimming, collapsing
-whitespace, and ignoring case.
+`stats` followed by the complete exercise name. For example, an entry named
+`bench press` will not match `bench` or the misspelling `bench prss`. Differences
+in capitalisation, leading or trailing spaces, and repeated spaces between words
+are ignored.
 
 Syntax:
 
