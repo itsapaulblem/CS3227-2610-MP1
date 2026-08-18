@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
  * Renders categorised FitLog feedback as styled messages in a conversation view.
  */
 public class GuiUi implements Ui {
+    private static final double MAXIMUM_MESSAGE_WIDTH = 620;
     private final VBox conversation;
     private final ScrollPane conversationScrollPane;
 
@@ -74,7 +75,7 @@ public class GuiUi implements Ui {
     private void appendMessage(String message, String styleClass, Pos alignment) {
         Label messageLabel = new Label(message);
         messageLabel.setWrapText(true);
-        messageLabel.setMaxWidth(620);
+        messageLabel.setMaxWidth(MAXIMUM_MESSAGE_WIDTH);
         messageLabel.getStyleClass().add("message-bubble");
         messageLabel.getStyleClass().add(styleClass);
 

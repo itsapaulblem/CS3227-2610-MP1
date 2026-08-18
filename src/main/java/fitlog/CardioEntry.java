@@ -33,10 +33,10 @@ public final class CardioEntry extends ExerciseEntry {
      */
     public CardioEntry(String name, int durationMinutes, Double distanceKm, LocalDateTime loggedAt) {
         super(name, loggedAt);
-        if (durationMinutes <= 0) {
+        if (!ExerciseValueValidator.isPositiveWholeNumber(durationMinutes)) {
             throw new IllegalArgumentException("Duration must be greater than zero.");
         }
-        if (distanceKm != null && (!Double.isFinite(distanceKm) || distanceKm <= 0)) {
+        if (distanceKm != null && !ExerciseValueValidator.isFinitePositiveNumber(distanceKm)) {
             throw new IllegalArgumentException("Distance must be finite and greater than zero.");
         }
         this.durationMinutes = durationMinutes;

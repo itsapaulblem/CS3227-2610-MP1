@@ -2,6 +2,7 @@ package fitlog;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Provides the single registration point for FitLog's supported commands.
@@ -28,54 +29,87 @@ final class CommandRegistry {
     /** Creates the registry used by the FitLog application. */
     static CommandRegistry createDefault() {
         return new CommandRegistry(List.of(
-                definition(LogStrengthCommand.class, startsWithCommand("log strength"),
-                        CommandParser::parseLogStrengthCommand,
-                        (command, entries, storage, ui, registry) ->
-                                CommandExecutor.executeLogStrength(command, entries, storage, ui),
-                        "log strength <name> /sets <n> /reps <n> /weight <kg>",
-                        "log strength bench press /sets 3 /reps 10 /weight 80"),
-                definition(LogCardioCommand.class, startsWithCommand("log cardio"),
-                        CommandParser::parseLogCardioCommand,
-                        (command, entries, storage, ui, registry) ->
-                                CommandExecutor.executeLogCardio(command, entries, storage, ui),
-                        "log cardio <name> /duration <min> [/distance <km>]",
-                        "log cardio run /duration 30 /distance 5"),
-                definition(ListCommand.class, exactCommand("list"),
-                        (input, entries, ui) -> new ListCommand(),
-                        (command, entries, storage, ui, registry) -> CommandExecutor.executeList(entries, ui),
-                        "list", "list"),
-                definition(EditCommand.class, startsWithCommand("edit"), CommandParser::parseEditCommand,
-                        (command, entries, storage, ui, registry) ->
-                                CommandExecutor.executeEdit(command, entries, storage, ui),
-                        "edit <index> /sets <n> | edit <index> /reps <n> | "
-                                + "edit <index> /weight <kg> | edit <index> /duration <min> | "
-                                + "edit <index> /distance <km>",
-                        "edit 1 /weight 82.5"),
-                definition(DeleteCommand.class, startsWithCommand("delete"), CommandParser::parseDeleteCommand,
-                        (command, entries, storage, ui, registry) ->
-                                CommandExecutor.executeDelete(command, entries, storage, ui),
-                        "delete <index>", "delete 2"),
-                definition(FindCommand.class, startsWithCommand("find"), CommandParser::parseFindCommand,
-                        (command, entries, storage, ui, registry) -> CommandExecutor.executeFind(command, entries, ui),
-                        "find <search term>", "find press"),
-                definition(StatsCommand.class, startsWithCommand("stats"), CommandParser::parseStatsCommand,
-                        (command, entries, storage, ui, registry) -> CommandExecutor.executeStats(command, entries, ui),
-                        "stats <exercise name>", "stats bench press"),
-                definition(VolumeCommand.class, exactCommand("volume"),
-                        (input, entries, ui) -> new VolumeCommand(),
-                        (command, entries, storage, ui, registry) -> CommandExecutor.executeVolume(entries, ui),
-                        "volume", "volume"),
-                definition(HelpCommand.class, exactCommand("help"),
-                        (input, entries, ui) -> new HelpCommand(),
-                        (command, entries, storage, ui, registry) -> {
-                            registry.showHelp(ui);
-                            return false;
-                        },
-                        "help", "help"),
-                definition(ByeCommand.class, exactCommand("bye"),
-                        (input, entries, ui) -> new ByeCommand(),
-                        (command, entries, storage, ui, registry) -> CommandExecutor.executeBye(ui),
-                        "bye", "bye")));
+                strengthLogDefinition(), cardioLogDefinition(), listDefinition(), editDefinition(),
+                deleteDefinition(), findDefinition(), statsDefinition(), volumeDefinition(),
+                helpDefinition(), byeDefinition()));
+    }
+
+    private static CommandDefinition<LogStrengthCommand> strengthLogDefinition() {
+        return definition(LogStrengthCommand.class, startsWithCommand("log strength"),
+                CommandParser::parseLogStrengthCommand,
+                (command, entries, storage, ui, registry) ->
+                        CommandExecutor.executeLogStrength(command, entries, storage, ui),
+                "log strength <name> /sets <n> /reps <n> /weight <kg>",
+                "log strength bench press /sets 3 /reps 10 /weight 80");
+    }
+
+    private static CommandDefinition<LogCardioCommand> cardioLogDefinition() {
+        return definition(LogCardioCommand.class, startsWithCommand("log cardio"),
+                CommandParser::parseLogCardioCommand,
+                (command, entries, storage, ui, registry) ->
+                        CommandExecutor.executeLogCardio(command, entries, storage, ui),
+                "log cardio <name> /duration <min> [/distance <km>]",
+                "log cardio run /duration 30 /distance 5");
+    }
+
+    private static CommandDefinition<ListCommand> listDefinition() {
+        return definition(ListCommand.class, exactCommand("list"),
+                (input, entries, ui) -> new ListCommand(),
+                (command, entries, storage, ui, registry) -> CommandExecutor.executeList(entries, ui),
+                "list", "list");
+    }
+
+    private static CommandDefinition<EditCommand> editDefinition() {
+        return definition(EditCommand.class, startsWithCommand("edit"), CommandParser::parseEditCommand,
+                (command, entries, storage, ui, registry) ->
+                        CommandExecutor.executeEdit(command, entries, storage, ui),
+                "edit <index> /sets <n> | edit <index> /reps <n> | "
+                        + "edit <index> /weight <kg> | edit <index> /duration <min> | "
+                        + "edit <index> /distance <km>",
+                "edit 1 /weight 82.5");
+    }
+
+    private static CommandDefinition<DeleteCommand> deleteDefinition() {
+        return definition(DeleteCommand.class, startsWithCommand("delete"), CommandParser::parseDeleteCommand,
+                (command, entries, storage, ui, registry) ->
+                        CommandExecutor.executeDelete(command, entries, storage, ui),
+                "delete <index>", "delete 2");
+    }
+
+    private static CommandDefinition<FindCommand> findDefinition() {
+        return definition(FindCommand.class, startsWithCommand("find"), CommandParser::parseFindCommand,
+                (command, entries, storage, ui, registry) -> CommandExecutor.executeFind(command, entries, ui),
+                "find <search term>", "find press");
+    }
+
+    private static CommandDefinition<StatsCommand> statsDefinition() {
+        return definition(StatsCommand.class, startsWithCommand("stats"), CommandParser::parseStatsCommand,
+                (command, entries, storage, ui, registry) -> CommandExecutor.executeStats(command, entries, ui),
+                "stats <exercise name>", "stats bench press");
+    }
+
+    private static CommandDefinition<VolumeCommand> volumeDefinition() {
+        return definition(VolumeCommand.class, exactCommand("volume"),
+                (input, entries, ui) -> new VolumeCommand(),
+                (command, entries, storage, ui, registry) -> CommandExecutor.executeVolume(entries, ui),
+                "volume", "volume");
+    }
+
+    private static CommandDefinition<HelpCommand> helpDefinition() {
+        return definition(HelpCommand.class, exactCommand("help"),
+                (input, entries, ui) -> new HelpCommand(),
+                (command, entries, storage, ui, registry) -> {
+                    registry.showHelp(ui);
+                    return false;
+                },
+                "help", "help");
+    }
+
+    private static CommandDefinition<ByeCommand> byeDefinition() {
+        return definition(ByeCommand.class, exactCommand("bye"),
+                (input, entries, ui) -> new ByeCommand(),
+                (command, entries, storage, ui, registry) -> CommandExecutor.executeBye(ui),
+                "bye", "bye");
     }
 
     /** Parses input using the first matching command definition. */
@@ -115,16 +149,16 @@ final class CommandRegistry {
     }
 
     private static <C extends Command> CommandDefinition<C> definition(Class<C> commandType,
-            java.util.function.Predicate<String> matchesInput, CommandDefinition.Parser<C> parser,
+            Predicate<String> matchesInput, CommandDefinition.Parser<C> parser,
             CommandDefinition.Executor<C> executor, String syntax, String example) {
         return new CommandDefinition<>(commandType, matchesInput, parser, executor, syntax, example);
     }
 
-    private static java.util.function.Predicate<String> exactCommand(String commandName) {
+    private static Predicate<String> exactCommand(String commandName) {
         return input -> input.equals(commandName);
     }
 
-    private static java.util.function.Predicate<String> startsWithCommand(String commandName) {
+    private static Predicate<String> startsWithCommand(String commandName) {
         return input -> input.equals(commandName) || input.startsWith(commandName + " ");
     }
 

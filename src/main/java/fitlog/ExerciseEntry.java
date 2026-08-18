@@ -22,7 +22,7 @@ public abstract sealed class ExerciseEntry permits StrengthEntry, CardioEntry {
      * @throws IllegalArgumentException if the exercise name is {@code null} or blank
      */
     public ExerciseEntry(String name, LocalDateTime loggedAt) {
-        if (name == null || name.isBlank()) {
+        if (!ExerciseValueValidator.isValidName(name)) {
             throw new IllegalArgumentException("Exercise name must not be blank.");
         }
         this.name = name;

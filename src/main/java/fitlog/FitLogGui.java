@@ -23,6 +23,11 @@ import javafx.util.Duration;
  * Provides FitLog's JavaFX command-conversation interface.
  */
 public class FitLogGui extends Application {
+    private static final double INITIAL_WINDOW_WIDTH = 1060;
+    private static final double INITIAL_WINDOW_HEIGHT = 720;
+    private static final double MINIMUM_WINDOW_WIDTH = 820;
+    private static final double MINIMUM_WINDOW_HEIGHT = 580;
+    private static final Duration FAREWELL_DISPLAY_DURATION = Duration.seconds(1.2);
     private final TextField commandInput = new TextField();
     private final Button sendButton = new Button("Send");
     private GuiUi ui;
@@ -48,11 +53,11 @@ public class FitLogGui extends Application {
         root.setCenter(createMainContent(conversationScrollPane));
         root.setBottom(createComposer());
 
-        Scene scene = new Scene(root, 1060, 720);
+        Scene scene = new Scene(root, INITIAL_WINDOW_WIDTH, INITIAL_WINDOW_HEIGHT);
         scene.getStylesheets().add(getClass().getResource("/fitlog/fitlog.css").toExternalForm());
         stage.setTitle("FitLog");
-        stage.setMinWidth(820);
-        stage.setMinHeight(580);
+        stage.setMinWidth(MINIMUM_WINDOW_WIDTH);
+        stage.setMinHeight(MINIMUM_WINDOW_HEIGHT);
         stage.setScene(scene);
         stage.show();
 
@@ -137,7 +142,7 @@ public class FitLogGui extends Application {
     private void endSession() {
         commandInput.setDisable(true);
 
-        PauseTransition farewellDelay = new PauseTransition(Duration.seconds(1.2));
+        PauseTransition farewellDelay = new PauseTransition(FAREWELL_DISPLAY_DURATION);
         farewellDelay.setOnFinished(event -> stage.close());
         farewellDelay.play();
     }

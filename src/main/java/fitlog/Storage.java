@@ -87,7 +87,7 @@ public class Storage implements EntryStorage {
             case "cardio" -> parseCardioEntry(fields);
             default -> null;
             };
-        } catch (NumberFormatException | DateTimeParseException exception) {
+        } catch (IllegalArgumentException | DateTimeParseException exception) {
             return null;
         }
     }
@@ -99,15 +99,12 @@ public class Storage implements EntryStorage {
      * @return the strength entry, or {@code null} when malformed
      */
     private StrengthEntry parseStrengthEntry(String[] fields) {
-        if ((fields.length != 5 && fields.length != 6) || fields[1].isBlank()) {
+        if (fields.length != 5 && fields.length != 6) {
             return null;
         }
         int sets = Integer.parseInt(fields[2]);
         int reps = Integer.parseInt(fields[3]);
         double weightKg = Double.parseDouble(fields[4]);
-        if (sets <= 0 || reps <= 0 || !Double.isFinite(weightKg) || weightKg <= 0) {
-            return null;
-        }
         LocalDateTime loggedAt = fields.length == 6 ? parseLoggedAt(fields[5]) : null;
         return new StrengthEntry(fields[1], sets, reps, weightKg, loggedAt);
     }
@@ -119,14 +116,11 @@ public class Storage implements EntryStorage {
      * @return the cardio entry, or {@code null} when malformed
      */
     private CardioEntry parseCardioEntry(String[] fields) {
-        if ((fields.length != 4 && fields.length != 5) || fields[1].isBlank()) {
+        if (fields.length != 4 && fields.length != 5) {
             return null;
         }
         int durationMinutes = Integer.parseInt(fields[2]);
         Double distanceKm = fields[3].isEmpty() ? null : Double.parseDouble(fields[3]);
-        if (durationMinutes <= 0 || (distanceKm != null && (!Double.isFinite(distanceKm) || distanceKm <= 0))) {
-            return null;
-        }
         LocalDateTime loggedAt = fields.length == 5 ? parseLoggedAt(fields[4]) : null;
         return new CardioEntry(fields[1], durationMinutes, distanceKm, loggedAt);
     }

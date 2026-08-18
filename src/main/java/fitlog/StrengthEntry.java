@@ -36,13 +36,13 @@ public final class StrengthEntry extends ExerciseEntry {
      */
     public StrengthEntry(String name, int sets, int reps, double weightKg, LocalDateTime loggedAt) {
         super(name, loggedAt);
-        if (sets <= 0) {
+        if (!ExerciseValueValidator.isPositiveWholeNumber(sets)) {
             throw new IllegalArgumentException("Sets must be greater than zero.");
         }
-        if (reps <= 0) {
+        if (!ExerciseValueValidator.isPositiveWholeNumber(reps)) {
             throw new IllegalArgumentException("Repetitions must be greater than zero.");
         }
-        if (!Double.isFinite(weightKg) || weightKg <= 0) {
+        if (!ExerciseValueValidator.isFinitePositiveNumber(weightKg)) {
             throw new IllegalArgumentException("Weight must be finite and greater than zero.");
         }
         this.sets = sets;
