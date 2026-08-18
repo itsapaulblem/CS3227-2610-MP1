@@ -40,9 +40,11 @@ and domain layer:
   collection-level PR comparison and volume totals.
 - `Storage` owns file I/O only. It loads valid entries with per-line malformed-data
   warnings and saves a supplied list to disk; it does not print user messages.
-- `ExerciseEntry` is the shared abstraction for immutable `StrengthEntry` and
-  `CardioEntry` values. It stores the immutable exercise name and logging time;
-  each subtype supplies display details and its PR metric.
+- `ExerciseEntry` is the sealed shared abstraction for immutable `StrengthEntry`
+  and `CardioEntry` values. These final classes are the only permitted entry
+  types, matching FitLog's two exercise categories. The base class stores the
+  immutable exercise name and logging time; each subtype supplies display details
+  and its PR metric.
 - `Command` is an extensible interface. The built-in command records are `ByeCommand`,
   `ListCommand`, `DeleteCommand`, `EditCommand`, `LogStrengthCommand`,
   `LogCardioCommand`, `FindCommand`, `StatsCommand`, `VolumeCommand`, and

@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 /**
  * Represents a strength exercise with sets, repetitions, and weight.
  */
-public class StrengthEntry extends ExerciseEntry {
+public final class StrengthEntry extends ExerciseEntry {
     private final int sets;
     private final int reps;
     private final double weightKg;
