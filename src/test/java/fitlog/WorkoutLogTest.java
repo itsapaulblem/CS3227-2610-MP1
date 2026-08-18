@@ -3,6 +3,7 @@ package fitlog;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -93,6 +94,25 @@ class WorkoutLogTest {
         StrengthEntry candidate = new StrengthEntry("bench press", 3, 8, 85.0);
 
         assertTrue(log.isPersonalRecord(candidate, 1));
+    }
+
+    @Test
+    void personalRecordRejectsExclusionIndexBelowLoggingSentinel() {
+        WorkoutLog log = new WorkoutLog();
+        StrengthEntry candidate = new StrengthEntry("bench press", 3, 10, 80.0);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> log.isPersonalRecord(candidate, -2));
+    }
+
+    @Test
+    void personalRecordRejectsExclusionIndexOutsideLog() {
+        WorkoutLog log = new WorkoutLog();
+        log.add(new StrengthEntry("bench press", 3, 10, 80.0));
+        StrengthEntry candidate = new StrengthEntry("bench press", 3, 10, 82.5);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> log.isPersonalRecord(candidate, log.size()));
     }
 
     @Test
