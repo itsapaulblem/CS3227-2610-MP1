@@ -110,7 +110,9 @@ name, excludes the edited entry itself, and requires a strictly greater metric.
 During an edit, the candidate occupies an existing position in the log, so the
 controller passes that position as `excludedIndex`; logging passes `-1` because
 there is no existing entry to exclude. This prevents an edited entry from being
-compared against its previous value.
+compared against its previous value. `WorkoutLog` rejects any other exclusion
+index with an always-on `IllegalArgumentException`, rather than relying on Java
+assertions that may be disabled at runtime.
 
 The result is calculated from the current in-memory log and is not stored on an
 entry. Consequently, deleting a former PR cannot leave stale PR state; a later
