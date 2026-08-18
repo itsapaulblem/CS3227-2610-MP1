@@ -96,7 +96,7 @@ completed work:
 > "FitLogController has too many responsibilities — SRP ... This should be done
 > incrementally, not as a single large refactor."
 
-> "How was the overall audit, any violations still?"
+> "I changed the code, how was the overall audit, any violations still?"
 
 Codex first reported the design findings without modifying code. After receiving
 separate implementation requests, it applied each refactor in small commits,
