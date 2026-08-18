@@ -15,6 +15,7 @@ public final class CardioEntry extends ExerciseEntry {
      * @param name the exercise name
      * @param durationMinutes the exercise duration in minutes
      * @param distanceKm the distance in kilometres, or {@code null} when not recorded
+     * @throws IllegalArgumentException if any exercise value is invalid
      */
     public CardioEntry(String name, int durationMinutes, Double distanceKm) {
         this(name, durationMinutes, distanceKm, LocalDateTime.now());
@@ -27,9 +28,17 @@ public final class CardioEntry extends ExerciseEntry {
      * @param durationMinutes the exercise duration in minutes
      * @param distanceKm the distance in kilometres, or {@code null} when not recorded
      * @param loggedAt the local logging time, or {@code null} for a legacy entry
+     * @throws IllegalArgumentException if the name is blank, the duration is not
+     *                                  positive, or a supplied distance is not finite and positive
      */
     public CardioEntry(String name, int durationMinutes, Double distanceKm, LocalDateTime loggedAt) {
         super(name, loggedAt);
+        if (durationMinutes <= 0) {
+            throw new IllegalArgumentException("Duration must be greater than zero.");
+        }
+        if (distanceKm != null && (!Double.isFinite(distanceKm) || distanceKm <= 0)) {
+            throw new IllegalArgumentException("Distance must be finite and greater than zero.");
+        }
         this.durationMinutes = durationMinutes;
         this.distanceKm = distanceKm;
     }

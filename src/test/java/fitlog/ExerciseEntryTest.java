@@ -2,6 +2,7 @@ package fitlog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDateTime;
 
@@ -117,5 +118,47 @@ class ExerciseEntryTest {
         String description = entry.getPrDescription();
 
         assertEquals("Longest run: 30 min", description);
+    }
+
+    @Test
+    void entriesRejectNullOrBlankNames() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new StrengthEntry(null, 3, 10, 80.0));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CardioEntry("   ", 30, null));
+    }
+
+    @Test
+    void strengthEntryRejectsNonPositiveCounts() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new StrengthEntry("bench press", 0, 10, 80.0));
+        assertThrows(IllegalArgumentException.class,
+                () -> new StrengthEntry("bench press", 3, -1, 80.0));
+    }
+
+    @Test
+    void strengthEntryRejectsInvalidWeight() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new StrengthEntry("bench press", 3, 10, 0));
+        assertThrows(IllegalArgumentException.class,
+                () -> new StrengthEntry("bench press", 3, 10, Double.NaN));
+        assertThrows(IllegalArgumentException.class,
+                () -> new StrengthEntry("bench press", 3, 10, Double.POSITIVE_INFINITY));
+    }
+
+    @Test
+    void cardioEntryRejectsNonPositiveDuration() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new CardioEntry("run", 0, null));
+    }
+
+    @Test
+    void cardioEntryRejectsInvalidSuppliedDistance() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new CardioEntry("run", 30, -1.0));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CardioEntry("run", 30, Double.NaN));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CardioEntry("run", 30, Double.POSITIVE_INFINITY));
     }
 }

@@ -17,6 +17,7 @@ public final class StrengthEntry extends ExerciseEntry {
      * @param sets the number of sets performed
      * @param reps the number of repetitions in each set
      * @param weightKg the weight used in kilograms
+     * @throws IllegalArgumentException if any exercise value is invalid
      */
     public StrengthEntry(String name, int sets, int reps, double weightKg) {
         this(name, sets, reps, weightKg, LocalDateTime.now());
@@ -30,9 +31,20 @@ public final class StrengthEntry extends ExerciseEntry {
      * @param reps the number of repetitions in each set
      * @param weightKg the weight used in kilograms
      * @param loggedAt the local logging time, or {@code null} for a legacy entry
+     * @throws IllegalArgumentException if the name is blank, the counts are not
+     *                                  positive, or the weight is not finite and positive
      */
     public StrengthEntry(String name, int sets, int reps, double weightKg, LocalDateTime loggedAt) {
         super(name, loggedAt);
+        if (sets <= 0) {
+            throw new IllegalArgumentException("Sets must be greater than zero.");
+        }
+        if (reps <= 0) {
+            throw new IllegalArgumentException("Repetitions must be greater than zero.");
+        }
+        if (!Double.isFinite(weightKg) || weightKg <= 0) {
+            throw new IllegalArgumentException("Weight must be finite and greater than zero.");
+        }
         this.sets = sets;
         this.reps = reps;
         this.weightKg = weightKg;

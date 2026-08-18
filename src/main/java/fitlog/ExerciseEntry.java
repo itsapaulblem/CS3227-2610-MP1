@@ -19,8 +19,12 @@ public abstract sealed class ExerciseEntry permits StrengthEntry, CardioEntry {
      * @param name the exercise name supplied by the user
      * @param loggedAt the local time at which the entry was logged, or {@code null}
      *                 for a legacy entry whose saved time is unknown
+     * @throws IllegalArgumentException if the exercise name is {@code null} or blank
      */
     public ExerciseEntry(String name, LocalDateTime loggedAt) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Exercise name must not be blank.");
+        }
         this.name = name;
         this.loggedAt = loggedAt;
     }
