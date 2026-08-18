@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 /**
  * Represents a cardio exercise with duration and an optional distance.
  */
-public class CardioEntry extends ExerciseEntry {
+public final class CardioEntry extends ExerciseEntry {
     private final int durationMinutes;
     private final Double distanceKm;
 

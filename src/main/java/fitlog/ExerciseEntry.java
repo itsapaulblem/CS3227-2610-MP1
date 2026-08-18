@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Represents one exercise logged in the current workout session.
+ * Represents one strength or cardio exercise logged in FitLog.
+ * The hierarchy is sealed because these are the only exercise categories in the
+ * FitLog domain.
  */
-public abstract class ExerciseEntry {
+public abstract sealed class ExerciseEntry permits StrengthEntry, CardioEntry {
     private static final DateTimeFormatter DISPLAY_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private final String name;
     private final LocalDateTime loggedAt;
