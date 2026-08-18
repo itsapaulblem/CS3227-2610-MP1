@@ -15,6 +15,34 @@ In the GUI, user commands are displayed in blue conversation bubbles, while FitL
 
 FitLog was developed and tested on Windows 11 using Java 25 and PowerShell.
 
+### Building a release JAR
+
+Install Java 25 and confirm that it is active:
+
+```text
+java --version
+```
+
+From the project root on Windows PowerShell, run:
+
+```powershell
+.\gradlew.bat clean test shadowJar
+java -jar build\libs\fitlog.jar
+```
+
+On macOS or Linux, run the equivalent commands:
+
+```bash
+./gradlew clean test shadowJar
+java -jar build/libs/fitlog.jar
+```
+
+If the Gradle wrapper is not executable on macOS or Linux, first run
+`chmod +x gradlew`. The build command removes old build output, runs the test
+suite, and creates the self-contained release JAR at `build/libs/fitlog.jar`.
+The second command launches that JAR so that the packaged application can be
+checked before release.
+
 ### Starting the GUI
 
 Build the project with Java 25, then launch the JavaFX interface:
