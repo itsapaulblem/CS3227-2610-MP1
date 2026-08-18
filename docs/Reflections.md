@@ -3,7 +3,7 @@
 ## Overview
 
 I used Codex 5.6 Terra throughout FitLog's development as a design partner,
-implementation assistant, and troubleshooting aid, never treating its
+implementation assistant, troubleshooting aid and never treated its
 output as automatically correct. All AI-generated code and design
 suggestions were reviewed and verified before being accepted.
 
@@ -27,8 +27,7 @@ instruction.
 **Prompt and context.** Before implementing personal records (PRs), I
 asked Codex to propose how a PR should be defined for strength and cardio
 exercises, without writing any code, covering how names should be
-matched, whether editing should trigger re-evaluation, and how
-notifications should look.
+matched, whether editing should trigger re-evaluation.
 
 After reviewing its proposals, I decided: strength PRs use heaviest
 weight, cardio PRs use longest duration; a new value must be *strictly*
@@ -49,11 +48,11 @@ using AI to explore the space of options quickly.
 **What the LLM assumed.** Codex proposed plausible metrics, but they were
 assumptions, not requirements. It could identify *possible* domain rules
 but not which one was correct for FitLog. It also raised the
-stored-versus-computed question for PR status; I chose computed-on-demand
+stored versus computed question for PR status; I chose computed on demand
 specifically so deleting a former PR-holder cannot leave stale state.
 
-**How the prompt evolved.** It moved from a broad "how should this work"
-question to a precise spec, only becoming an implementation request after
+**How the prompt evolved.** It moved from a broad "how should a PR be defined"
+question to a precise specification of a PR, only becoming an implementation request after
 every ambiguity (ties, first entries, name matching, edit behaviour) was
 resolved. This iterative approach avoided the wasted rework of coding
 against an assumption I would have rejected anyway.
@@ -63,20 +62,20 @@ covering: first entry is not a PR, a strictly heavier entry is, a
 strictly longer cardio duration is, an equal weight is not, differently
 formatted versions of the same name match correctly, and an edited entry
 is compared against other entries, not itself. These edge cases were not
-obvious from the main implementation path; an easy bug would be comparing
+obvious from the main implementation path. An easy bug would be comparing
 an edited entry against its own old value.
 
 **Engineering judgement required.** The LLM could enumerate alternatives
 and implement a chosen one, but deciding what a PR meant in FitLog, which
 metrics mattered, and which possibilities to exclude (for example, no
-time-period-specific PRs, despite having enough data to support them) was
+time period specific PRs, despite having enough data to support them) was
 mine. Syntactically correct code is not the same as code that satisfies
 the actual requirement.
 
 **When prompting was less effective.** Once the rules were settled,
 re-prompting about small details (such as `>` versus `>=`) was slower than
 just reading the code myself. Generated tests also still needed manual
-review against my actual requirements; a test that only confirms the
+review against my actual requirements. A test that only confirms the
 LLM's own interpretation is not useful.
 
 **What I would do differently.** I would convert selected rules into
@@ -108,7 +107,7 @@ Without this, piped or redirected input reaching EOF throws
 
 Several increments later, I asked Codex to add `delete`/`edit` commands.
 That rewrite reintroduced `scanner.nextLine().trim()` with no guard at
-all. The already-implemented, already-verified EOF handling was silently
+all. The already implemented, already verified EOF handling was silently
 dropped. Nothing in Codex's summary of the change flagged this; I only
 caught it by re-reading `main()` against the earlier version and testing
 with piped input.
@@ -149,7 +148,7 @@ before implementation) was simply not followed. The danger is that this
 kind of instruction exists specifically to keep a decision point in the
 loop before code changes happen. If the LLM collapses that gate whenever
 it judges the implementation "straightforward enough," the reviewer has
-to actively notice a two-part instruction got executed as one, rather
+to actively notice a two part instruction got executed as one, rather
 than trusting it was honoured. This is a harder failure to catch than a
 regression, because nothing about the output looks wrong on its own; it
 is only wrong relative to the process I asked for. On review, the
