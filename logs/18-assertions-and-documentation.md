@@ -18,6 +18,10 @@ then expanded for users, developers, GUI testing, and submission preparation.
 - The Shadow plugin was configured and `shadowJar` successfully created
   `build/libs/fitlog.jar` for the JavaFX launcher.
 
+The later code-quality audit superseded the assertion approach for important
+preconditions. Production assertions were removed, and the public PR exclusion
+index is now enforced with an always-on exception; see log 19.
+
 ## Submission-related observations
 
 The `master` branch name and repository remote were checked. Documentation and
@@ -40,7 +44,8 @@ TestFX was deliberately deferred after a risk assessment.
 
 ### Preserved Codex outcome
 
-The pasted history records the final MP1 audit: FitLog was assessed as a JavaFX
-desktop personal utility, distinct from a to-do manager, with 36 passing tests.
-It also correctly flagged the mandatory reflection document and complete summary
-logs as submission work rather than application-feature defects.
+The pasted history records the then-current MP1 audit: FitLog was assessed as a
+JavaFX desktop personal utility, distinct from a to-do manager, with 36 passing
+tests at that stage. It also correctly flagged the mandatory reflection document
+and complete summary logs as submission work rather than application-feature
+defects.
