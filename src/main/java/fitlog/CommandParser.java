@@ -14,45 +14,8 @@ final class CommandParser {
     private CommandParser() {
     }
 
-    /**
-     * Parses one user command and reports any validation error through the UI.
-     *
-     * @param input the raw user input
-     * @param entries the current workout log, used to validate entry indices
-     * @param ui the destination for validation errors
-     * @return the validated command, or {@code null} when parsing fails
-     */
-    static Command parse(String input, WorkoutLog entries, Ui ui) {
-        String command = input.trim();
-        if (command.equals("delete") || command.startsWith("delete ")) {
-            return parseDeleteCommand(command, entries, ui);
-        }
-        if (command.equals("edit") || command.startsWith("edit ")) {
-            return parseEditCommand(command, entries, ui);
-        }
-        if (command.equals("log strength") || command.startsWith("log strength ")) {
-            return parseLogStrengthCommand(command, ui);
-        }
-        if (command.equals("log cardio") || command.startsWith("log cardio ")) {
-            return parseLogCardioCommand(command, ui);
-        }
-        if (command.equals("find") || command.startsWith("find ")) {
-            return parseFindCommand(command, ui);
-        }
-        if (command.equals("stats") || command.startsWith("stats ")) {
-            return parseStatsCommand(command, ui);
-        }
-
-        Command simpleCommand = parseSimpleCommand(command);
-        if (simpleCommand != null) {
-            return simpleCommand;
-        }
-        reportUnrecognisedCommand(command, ui);
-        return null;
-    }
-
     /** Reports the most specific error available for an unrecognised command. */
-    private static void reportUnrecognisedCommand(String command, Ui ui) {
+    static void reportUnrecognisedCommand(String command, Ui ui) {
         if (command.equals("log")) {
             ui.showError("Choose an exercise type after 'log': strength or cardio.");
         } else if (command.startsWith("log ")) {
@@ -63,7 +26,7 @@ final class CommandParser {
         }
     }
 
-    private static FindCommand parseFindCommand(String command, Ui ui) {
+    static FindCommand parseFindCommand(String command, WorkoutLog entries, Ui ui) {
         String searchTerm = command.substring("find".length()).trim();
         if (searchTerm.isEmpty()) {
             ui.showError("Specify a search term to find.");
@@ -72,7 +35,7 @@ final class CommandParser {
         return new FindCommand(searchTerm);
     }
 
-    private static StatsCommand parseStatsCommand(String command, Ui ui) {
+    static StatsCommand parseStatsCommand(String command, WorkoutLog entries, Ui ui) {
         String exerciseName = command.substring("stats".length()).trim();
         if (exerciseName.isEmpty()) {
             ui.showError("Specify an exercise name to view stats.");
@@ -81,17 +44,7 @@ final class CommandParser {
         return new StatsCommand(exerciseName);
     }
 
-    private static Command parseSimpleCommand(String command) {
-        return switch (command) {
-        case "bye" -> new ByeCommand();
-        case "list" -> new ListCommand();
-        case "volume" -> new VolumeCommand();
-        case "help" -> new HelpCommand();
-        default -> null;
-        };
-    }
-
-    private static DeleteCommand parseDeleteCommand(String command, WorkoutLog entries, Ui ui) {
+    static DeleteCommand parseDeleteCommand(String command, WorkoutLog entries, Ui ui) {
         if (entries.isEmpty()) {
             ui.showError("There are no entries to delete.");
             return null;
@@ -111,7 +64,7 @@ final class CommandParser {
         return index == null ? null : new DeleteCommand(index);
     }
 
-    private static EditCommand parseEditCommand(String command, WorkoutLog entries, Ui ui) {
+    static EditCommand parseEditCommand(String command, WorkoutLog entries, Ui ui) {
         if (entries.isEmpty()) {
             ui.showError("There are no entries to edit.");
             return null;
@@ -157,7 +110,7 @@ final class CommandParser {
         return new EditCommand(index, field, parts[3]);
     }
 
-    private static LogStrengthCommand parseLogStrengthCommand(String command, Ui ui) {
+    static LogStrengthCommand parseLogStrengthCommand(String command, WorkoutLog entries, Ui ui) {
         LogDetails details = parseLogDetails(command, "log strength", "strength", STRENGTH_FIELDS,
                 "/sets, /reps, and /weight", ui);
         if (details == null) {
@@ -176,7 +129,7 @@ final class CommandParser {
         return new LogStrengthCommand(details.name(), sets, reps, weightKg);
     }
 
-    private static LogCardioCommand parseLogCardioCommand(String command, Ui ui) {
+    static LogCardioCommand parseLogCardioCommand(String command, WorkoutLog entries, Ui ui) {
         LogDetails details = parseLogDetails(command, "log cardio", "cardio", CARDIO_FIELDS,
                 "/duration and optional /distance", ui);
         if (details == null) {

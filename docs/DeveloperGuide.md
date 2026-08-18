@@ -18,9 +18,17 @@ and domain layer:
   JavaFX `Application` subclass.
 - `FitLogGui` creates the JavaFX scene, wires Enter and Send-button events to the
   controller, and closes the window shortly after a `bye` response.
-- `FitLogController` owns startup loading, command parsing, dispatch, the current
-  `WorkoutLog`, and the `Storage` service. Its `start()` method emits the startup
-  feedback, and `submit(String)` resolves and executes one command.
+- `FitLogController` coordinates startup loading and one-command submission. It
+  delegates recognition, parsing, execution, and help generation through the
+  shared `CommandRegistry`.
+- `CommandRegistry` is the single registration point for supported commands.
+  Each `CommandDefinition` associates one command type with its input matcher,
+  parser, executor, syntax, and example, so parsing, execution, and help cannot
+  drift into separate command catalogues.
+- `CommandParser` contains command-specific input validation, while
+  `CommandExecutor` coordinates command behaviour and persistence. `EntryEditor`
+  rebuilds immutable entries, and `EntryFormatter` formats list, find, and stats
+  output.
 - `Ui` is an output interface with separate information, example, success, error,
   warning, and PR feedback methods. `ConsoleUi` implements it with plain console output,
   owns the `Scanner`, prints the `> ` prompt, and returns `null` at end-of-file.
@@ -35,7 +43,7 @@ and domain layer:
 - `ExerciseEntry` is the shared abstraction for immutable `StrengthEntry` and
   `CardioEntry` values. It stores the immutable exercise name and logging time;
   each subtype supplies display details and its PR metric.
-- `Command` is a sealed interface. The command records are `ByeCommand`,
+- `Command` is an extensible interface. The built-in command records are `ByeCommand`,
   `ListCommand`, `DeleteCommand`, `EditCommand`, `LogStrengthCommand`,
   `LogCardioCommand`, `FindCommand`, `StatsCommand`, `VolumeCommand`, and
   `HelpCommand`. They
@@ -43,9 +51,10 @@ and domain layer:
   parsing before a command record is created.
 
 At runtime, either `FitLog`/`ConsoleUi` or `Launcher`/`FitLogGui` supplies input
-to `FitLogController`. The controller resolves the input into a `Command`, uses
-`WorkoutLog` to perform collection operations, asks `Storage` to save successful
-mutations, and returns categorised feedback through the selected `Ui`.
+to `FitLogController`. The registry resolves the input into a `Command` and
+dispatches its registered executor. Command behaviour uses `WorkoutLog` for
+collection operations, `Storage` for successful mutations, and `Ui` for
+categorised feedback.
 
 ### GUI reuse after the controller refactor
 
@@ -55,9 +64,9 @@ operations that JavaFX event handlers can call directly. This allows the GUI to
 reuse the existing parsers, command records, validation messages, persistence, and
 command execution without duplicating command logic.
 
-`WorkoutLog`, `Storage`, `ExerciseEntry` and its subclasses, and the sealed
-`Command` hierarchy required zero changes to support the GUI. Only the UI layer
-and entry points differ between console and JavaFX execution.
+`WorkoutLog`, `Storage`, `ExerciseEntry` and its subclasses, and the command
+model required zero changes when the GUI was introduced. Only the UI layer and
+entry points differed from the console version.
 
 ### JavaFX and Gradle setup
 

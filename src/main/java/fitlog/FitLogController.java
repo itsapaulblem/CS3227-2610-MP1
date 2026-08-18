@@ -10,6 +10,7 @@ public class FitLogController {
     private final Ui ui;
     private final WorkoutLog entries;
     private final Storage storage;
+    private final CommandRegistry commandRegistry;
 
     /**
      * Creates a controller that uses the supplied UI and storage service.
@@ -18,8 +19,14 @@ public class FitLogController {
      * @param storage the service used to load and save entries
      */
     public FitLogController(Ui ui, Storage storage) {
+        this(ui, storage, CommandRegistry.createDefault());
+    }
+
+    /** Creates a controller with an explicitly supplied command registry. */
+    FitLogController(Ui ui, Storage storage, CommandRegistry commandRegistry) {
         this.ui = ui;
         this.storage = storage;
+        this.commandRegistry = commandRegistry;
         entries = new WorkoutLog();
     }
 
@@ -56,8 +63,8 @@ public class FitLogController {
      * @return whether the caller should end the interaction
      */
     public boolean submit(String input) {
-        Command command = CommandParser.parse(input, entries, ui);
-        return command != null && CommandExecutor.execute(command, entries, storage, ui);
+        Command command = commandRegistry.parse(input, entries, ui);
+        return command != null && commandRegistry.execute(command, entries, storage, ui);
     }
 
     /**
