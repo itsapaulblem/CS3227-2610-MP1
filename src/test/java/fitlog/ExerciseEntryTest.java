@@ -161,4 +161,41 @@ class ExerciseEntryTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new CardioEntry("run", 30, Double.POSITIVE_INFINITY));
     }
+
+    @Test
+    void entriesExposeTheirTypeSpecificValues() {
+        StrengthEntry strength = new StrengthEntry("bench", 3, 10, 80);
+        CardioEntry cardio = new CardioEntry("run", 30, 5.0);
+
+        assertEquals("Strength", strength.getTypeLabel());
+        assertEquals("bench", strength.getName());
+        assertEquals(3, strength.getSets());
+        assertEquals(10, strength.getReps());
+        assertEquals(80.0, strength.getWeightKg());
+        assertEquals("Cardio", cardio.getTypeLabel());
+        assertEquals(30, cardio.getDurationMinutes());
+        assertEquals(5.0, cardio.getDistanceKm());
+    }
+
+    @Test
+    void strengthEntryRejectsRemainingNumericBoundaries() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new StrengthEntry("bench", -1, 10, 80));
+        assertThrows(IllegalArgumentException.class,
+                () -> new StrengthEntry("bench", 3, 0, 80));
+        assertThrows(IllegalArgumentException.class,
+                () -> new StrengthEntry("bench", 3, 10, -1));
+        assertThrows(IllegalArgumentException.class,
+                () -> new StrengthEntry("bench", 3, 10, Double.NEGATIVE_INFINITY));
+    }
+
+    @Test
+    void cardioEntryRejectsRemainingNumericBoundaries() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new CardioEntry("run", -1, null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CardioEntry("run", 30, 0.0));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CardioEntry("run", 30, Double.NEGATIVE_INFINITY));
+    }
 }
