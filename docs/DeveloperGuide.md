@@ -37,7 +37,8 @@ and domain layer:
 - `WorkoutLog` owns the in-memory `List<ExerciseEntry>`. It provides add, delete,
   replace, lookup, and listing operations, case-insensitive substring search with
   original list positions, normalised exact-name lookup for progression, and
-  collection-level PR comparison and volume totals.
+  collection-level PR comparison and volume totals across the complete loaded
+  workout history.
 - `EntryStorage` abstracts loading and saving entries so the controller and
   command-execution pipeline do not depend on a persistence format. `Storage` is
   the file-backed implementation: it loads valid entries with per-line
@@ -48,6 +49,10 @@ and domain layer:
   types, matching FitLog's two exercise categories. The base class stores the
   immutable exercise name and logging time; each subtype supplies display details
   and its PR metric.
+- `ExerciseValueValidator` defines the shared name, positive-whole-number, and
+  finite-positive-number rules used by entry constructors and command parsing.
+  Storage parsing delegates these domain checks to the constructors, preventing
+  separate saved-data rules from drifting out of sync.
 - `Command` is an extensible interface. The built-in command records are `ByeCommand`,
   `ListCommand`, `DeleteCommand`, `EditCommand`, `LogStrengthCommand`,
   `LogCardioCommand`, `FindCommand`, `StatsCommand`, `VolumeCommand`, and

@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Stores the entries in the current workout session and performs collection-level operations.
+ * Stores the complete loaded workout history and performs collection-level operations.
  */
 public class WorkoutLog {
     private final List<ExerciseEntry> entries = new ArrayList<>();
 
     /**
-     * Adds an exercise entry to the current session.
+     * Adds an exercise entry to the workout history.
      *
      * @param entry the entry to add
      */
@@ -51,7 +51,7 @@ public class WorkoutLog {
     }
 
     /**
-     * Returns the number of entries in the current session.
+     * Returns the number of entries in the workout history.
      *
      * @return the entry count
      */
@@ -60,7 +60,7 @@ public class WorkoutLog {
     }
 
     /**
-     * Checks whether the current session contains no entries.
+     * Checks whether the workout history contains no entries.
      *
      * @return whether the session is empty
      */
@@ -69,7 +69,7 @@ public class WorkoutLog {
     }
 
     /**
-     * Returns a read-only view of the current session's entries for listing.
+     * Returns a read-only view of the workout history for listing and persistence.
      *
      * @return the entries in logging order
      */

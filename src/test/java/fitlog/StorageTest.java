@@ -109,6 +109,22 @@ class StorageTest {
     }
 
     @Test
+    void loadSkipsValuesRejectedByDomainValidation(@TempDir Path tempDir) throws IOException {
+        Path file = tempDir.resolve("fitlog.txt");
+        Files.write(file, List.of(
+                "strength\t\t3\t10\t80.0",
+                "cardio\trun\t0\t5.0"));
+        Storage storage = new Storage(file);
+
+        EntryStorage.LoadResult result = storage.load();
+
+        assertTrue(result.entries().isEmpty());
+        assertEquals(2, result.warnings().size());
+        assertTrue(result.warnings().get(0).contains("line 1"));
+        assertTrue(result.warnings().get(1).contains("line 2"));
+    }
+
+    @Test
     void loadKeepsValidLinesAroundMalformedLines(@TempDir Path tempDir) throws IOException {
         Path file = tempDir.resolve("fitlog.txt");
         Files.write(file, List.of(

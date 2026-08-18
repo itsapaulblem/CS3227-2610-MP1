@@ -71,43 +71,60 @@ final class CommandParser {
         }
 
         String[] parts = command.split("\\s+");
-        if (parts.length == 1) {
-            ui.showError("Specify the entry number to edit.");
-            return null;
-        }
-
-        Integer index = parseEntryIndex(parts[1], entries.size(), ui);
-        if (index == null) {
-            return null;
-        }
-        if (parts.length == 2) {
-            ui.showError("Specify one field and its new value, for example /weight 82.5.");
-            return null;
-        }
-        if (parts.length == 3) {
-            ui.showError("Provide a value after " + parts[2] + ".");
-            return null;
-        }
-        if (parts.length != 4) {
-            ui.showError("Edit one field at a time.");
+        Integer index = parseEditIndex(parts, entries.size(), ui);
+        if (index == null || !hasValidEditArguments(parts, ui)) {
             return null;
         }
 
         String field = parts[2];
         ExerciseEntry existingEntry = entries.get(index);
-        if (!STRENGTH_FIELDS.contains(field) && !CARDIO_FIELDS.contains(field)) {
-            ui.showError("'" + field + "' cannot be edited. Choose a field supported by this entry type.");
-            return null;
-        }
-        if (existingEntry instanceof StrengthEntry && !STRENGTH_FIELDS.contains(field)) {
-            ui.showError("'" + field + "' applies to cardio entries, but entry " + (index + 1) + " is strength.");
-            return null;
-        }
-        if (existingEntry instanceof CardioEntry && !CARDIO_FIELDS.contains(field)) {
-            ui.showError("'" + field + "' applies to strength entries, but entry " + (index + 1) + " is cardio.");
+        if (!isValidEditField(existingEntry, field, index, ui)) {
             return null;
         }
         return new EditCommand(index, field, parts[3]);
+    }
+
+    /** Parses the target entry number from an edit command. */
+    private static Integer parseEditIndex(String[] parts, int entryCount, Ui ui) {
+        if (parts.length == 1) {
+            ui.showError("Specify the entry number to edit.");
+            return null;
+        }
+        return parseEntryIndex(parts[1], entryCount, ui);
+    }
+
+    /** Checks that an edit supplies exactly one field and one replacement value. */
+    private static boolean hasValidEditArguments(String[] parts, Ui ui) {
+        if (parts.length == 2) {
+            ui.showError("Specify one field and its new value, for example /weight 82.5.");
+            return false;
+        }
+        if (parts.length == 3) {
+            ui.showError("Provide a value after " + parts[2] + ".");
+            return false;
+        }
+        if (parts.length != 4) {
+            ui.showError("Edit one field at a time.");
+            return false;
+        }
+        return true;
+    }
+
+    /** Checks that an edit field exists and belongs to the selected entry type. */
+    private static boolean isValidEditField(ExerciseEntry existingEntry, String field, int index, Ui ui) {
+        if (!STRENGTH_FIELDS.contains(field) && !CARDIO_FIELDS.contains(field)) {
+            ui.showError("'" + field + "' cannot be edited. Choose a field supported by this entry type.");
+            return false;
+        }
+        if (existingEntry instanceof StrengthEntry && !STRENGTH_FIELDS.contains(field)) {
+            ui.showError("'" + field + "' applies to cardio entries, but entry " + (index + 1) + " is strength.");
+            return false;
+        }
+        if (existingEntry instanceof CardioEntry && !CARDIO_FIELDS.contains(field)) {
+            ui.showError("'" + field + "' applies to strength entries, but entry " + (index + 1) + " is cardio.");
+            return false;
+        }
+        return true;
     }
 
     static LogStrengthCommand parseLogStrengthCommand(String command, WorkoutLog entries, Ui ui) {
@@ -166,6 +183,14 @@ final class CommandParser {
             return null;
         }
 
+        Map<String, String> values = parseOptionValues(
+                parts, firstFlagIndex, exerciseType, allowedFields, allowedFieldsDescription, ui);
+        return values == null ? null : new LogDetails(join(parts, 0, firstFlagIndex), values);
+    }
+
+    /** Parses and validates the flag-value pairs in a log command. */
+    private static Map<String, String> parseOptionValues(String[] parts, int firstFlagIndex, String exerciseType,
+            Set<String> allowedFields, String allowedFieldsDescription, Ui ui) {
         Map<String, String> values = new HashMap<>();
         for (int index = firstFlagIndex; index < parts.length; index += 2) {
             String flag = parts[index];
@@ -188,14 +213,14 @@ final class CommandParser {
             }
             values.put(flag, parts[index + 1]);
         }
-        return new LogDetails(join(parts, 0, firstFlagIndex), values);
+        return values;
     }
 
     /** Parses an edit option value so execution can reuse the same validation messages. */
     static Integer parsePositiveWholeNumber(String value, String flag, Ui ui) {
         try {
             int number = Integer.parseInt(value);
-            if (number <= 0) {
+            if (!ExerciseValueValidator.isPositiveWholeNumber(number)) {
                 ui.showError(flag + " must be a whole number greater than zero.");
                 return null;
             }
@@ -210,7 +235,7 @@ final class CommandParser {
     static Double parsePositiveNumber(String value, String flag, Ui ui) {
         try {
             double number = Double.parseDouble(value);
-            if (!Double.isFinite(number) || number <= 0) {
+            if (!ExerciseValueValidator.isFinitePositiveNumber(number)) {
                 ui.showError(flag + " must be a finite number greater than zero.");
                 return null;
             }

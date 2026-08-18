@@ -1,6 +1,7 @@
 package fitlog;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Coordinates application startup and delegates submitted commands for parsing
@@ -8,7 +9,7 @@ import java.io.IOException;
  */
 public class FitLogController {
     private final Ui ui;
-    private final WorkoutLog entries;
+    private final WorkoutLog workoutLog;
     private final EntryStorage storage;
     private final CommandRegistry commandRegistry;
 
@@ -27,33 +28,33 @@ public class FitLogController {
         this.ui = ui;
         this.storage = storage;
         this.commandRegistry = commandRegistry;
-        entries = new WorkoutLog();
+        workoutLog = new WorkoutLog();
     }
 
     /**
      * Loads saved entries, reports load warnings, and displays the startup greeting.
      */
     public void start() {
-        EntryStorage.LoadResult loadResult = null;
-        IOException loadFailure = null;
-        try {
-            loadResult = storage.load();
-            for (ExerciseEntry entry : loadResult.entries()) {
-                entries.add(entry);
-            }
-        } catch (IOException exception) {
-            loadFailure = exception;
-        }
+        List<String> loadWarnings = loadWorkoutHistory();
 
         ui.showInfo("Welcome to FitLog!");
-        if (loadFailure != null) {
-            ui.showWarning("Warning: could not load saved entries: " + loadFailure.getMessage());
-        } else {
-            for (String warning : loadResult.warnings()) {
-                ui.showWarning(warning);
-            }
+        for (String warning : loadWarnings) {
+            ui.showWarning(warning);
         }
         ui.showInfo("What would you like to log today?");
+    }
+
+    /** Loads saved entries and converts a load failure into one user-facing warning. */
+    private List<String> loadWorkoutHistory() {
+        try {
+            EntryStorage.LoadResult loadResult = storage.load();
+            for (ExerciseEntry entry : loadResult.entries()) {
+                workoutLog.add(entry);
+            }
+            return loadResult.warnings();
+        } catch (IOException exception) {
+            return List.of("Warning: could not load saved entries: " + exception.getMessage());
+        }
     }
 
     /**
@@ -63,8 +64,8 @@ public class FitLogController {
      * @return whether the caller should end the interaction
      */
     public boolean submit(String input) {
-        Command command = commandRegistry.parse(input, entries, ui);
-        return command != null && commandRegistry.execute(command, entries, storage, ui);
+        Command command = commandRegistry.parse(input, workoutLog, ui);
+        return command != null && commandRegistry.execute(command, workoutLog, storage, ui);
     }
 
     /**
