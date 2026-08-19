@@ -15,80 +15,129 @@ In the GUI, user commands are displayed in blue conversation bubbles, while FitL
 
 ### Requirements
 
-After downloading or cloning the FitLog repository, open a terminal in the
-project root (the folder containing `gradlew` and `gradlew.bat`). Install Java
-25 and confirm that it is active:
+Install a Java 25 **JDK**. A JRE alone is not sufficient because Gradle must
+compile the application. Confirm that Java 25 is active:
 
 ```text
 java --version
+javac --version
 ```
 
-FitLog was developed and tested on Windows 11 using Java 25 and PowerShell.
+Both commands should report version 25. If they report another version, update
+`JAVA_HOME` and your `PATH` before continuing.
 
-On macOS or Linux, make the Gradle wrapper executable if necessary:
+Download or clone the FitLog repository, then open a terminal in its project
+root. This is the folder containing `gradlew`, `gradlew.bat`, and
+`build.gradle.kts`. All commands below must be run from this folder.
 
-```bash
-chmod +x gradlew
-```
+FitLog includes the Gradle wrapper, so you do not need to install Gradle. The
+wrapper downloads Gradle and the project's dependencies on its first run, which
+can take longer and requires an internet connection.
 
-### Starting FitLog
+### Start the GUI (recommended)
 
-The GUI is the recommended way to use FitLog. Gradle compiles and starts the
-application with a single command; a separate build step is not required.
+The `run` task compiles and starts FitLog. You do **not** need to run
+`clean`, `test`, or `shadowJar` first.
 
-On Windows PowerShell, run:
+#### Windows (PowerShell)
 
 ```powershell
 .\gradlew.bat run
 ```
 
-On macOS or Linux, run:
+#### macOS or Linux
+
+The wrapper may need executable permission after the repository is downloaded:
 
 ```bash
+chmod +x gradlew
 ./gradlew run
 ```
 
 The GUI has a header, a full-width scrollable conversation view, and a command
-field with a **Send** button. Press Enter or click **Send** to submit a command.
+field with a **Send** button. Press Enter or select **Send** to submit a command.
+The terminal remains occupied while FitLog is open; this is normal. Enter `bye`
+in FitLog or close its window to return to the terminal.
 
-### Building a runnable GUI JAR
+### Build and run a packaged GUI JAR (optional)
 
-This step is optional for normal use. To create a packaged copy of FitLog, remove
-old build output, run the tests, and build the JAR on Windows PowerShell:
+Use this alternative when you want to run the tests and create a packaged JAR.
+Run the Gradle command first and wait for `BUILD SUCCESSFUL`. Then run the
+separate `java -jar` command.
+
+#### Windows (PowerShell)
 
 ```powershell
 .\gradlew.bat clean test shadowJar
+```
+
+```powershell
 java -jar build\libs\fitlog.jar
 ```
 
-On macOS or Linux, run:
+#### macOS or Linux
 
 ```bash
 ./gradlew clean test shadowJar
+```
+
+```bash
 java -jar build/libs/fitlog.jar
 ```
 
-The first command creates the runnable GUI JAR at `build/libs/fitlog.jar`. The
-second command launches it. Java 25 is still required to run the JAR.
+The Gradle command removes old build output, runs the tests, and creates
+`build/libs/fitlog.jar`. The `java` command then launches that JAR. Do not append
+`java -jar ...` to the Gradle command: it is a different command, not a Gradle
+task. `clean` and `test` are useful build checks, but neither is required every
+time you start FitLog.
 
-### Starting the console command line interface (CLI)
+The packaged JAR includes JavaFX files for the operating system on which it was
+built. Build the JAR on the same operating system on which you intend to run it.
 
-As an alternative to the GUI, compile FitLog and start its console interface on
-Windows PowerShell:
+### Start the console command-line interface (optional)
+
+The CLI supports the same FitLog commands without opening a window.
+
+#### Windows (PowerShell)
 
 ```powershell
 .\gradlew.bat classes
+```
+
+```powershell
 java -cp build\classes\java\main fitlog.FitLog
 ```
 
-On macOS or Linux, use:
+#### macOS or Linux
 
 ```bash
 ./gradlew classes
+```
+
+```bash
 java -cp build/classes/java/main fitlog.FitLog
 ```
 
-The console displays a `> ` prompt before each command.
+Wait for the Gradle command to finish before running the `java` command. The
+console displays a `> ` prompt before each FitLog command. Enter `bye` to print
+the farewell and exit normally.
+
+### Setup troubleshooting
+
+- If Gradle says a task such as `java` or `-jar` does not exist, run the Gradle
+  and `java -jar` commands separately as shown above.
+- If a command cannot find `gradlew`, return to the project root. Use
+  `.\gradlew.bat` in Windows PowerShell and `./gradlew` on macOS or Linux.
+- If macOS or Linux reports `Permission denied` for `./gradlew`, run
+  `chmod +x gradlew` once and try again.
+- If the build reports an incompatible Java version, run `./gradlew --version`
+  on macOS or Linux, or `.\gradlew.bat --version` on Windows. The `JVM` line
+  should report Java 25.
+- If the first build appears to pause while downloading Gradle or dependencies,
+  keep the terminal open and check the internet connection.
+- If `run` does not return to the terminal after the GUI opens, FitLog is still
+  running. Submit `bye`; the farewell is displayed and the window closes after
+  about 1.2 seconds.
 
 ## Logging a strength exercise
 
