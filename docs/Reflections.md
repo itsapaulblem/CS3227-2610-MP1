@@ -83,7 +83,7 @@ explicit acceptance criteria before the first implementation prompt, to
 reduce clarification rounds while still forcing the design decisions to
 happen upfront. The effective workflow here was:
 
-problem -> alternatives -> engineering decision -> explicit requirements -> implementation -> verification
+`problem -> alternatives -> engineering decision -> explicit requirements -> implementation -> verification`
 
 not `prompt -> code`.
 
