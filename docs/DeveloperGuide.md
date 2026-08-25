@@ -106,6 +106,22 @@ differ.
 config:
   theme: base
   themeVariables:
+    background: "#0f172a"
+    primaryTextColor: "#f8fafc"
+    textColor: "#f8fafc"
+    actorBkg: "#1e293b"
+    actorBorder: "#cbd5e1"
+    actorTextColor: "#f8fafc"
+    actorLineColor: "#94a3b8"
+    signalColor: "#f8fafc"
+    signalTextColor: "#f8fafc"
+    labelBoxBkgColor: "#1e293b"
+    labelBoxBorderColor: "#cbd5e1"
+    labelTextColor: "#f8fafc"
+    loopTextColor: "#f8fafc"
+    noteBkgColor: "#334155"
+    noteBorderColor: "#cbd5e1"
+    noteTextColor: "#f8fafc"
     activationBkgColor: "#f8fafc"
     activationBorderColor: "#64748b"
 ---
