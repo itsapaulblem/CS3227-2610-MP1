@@ -168,7 +168,7 @@ table, decided which validation rules and messages to accept, and only then
 sent a separate prompt authorising implementation. This changed how I
 structure this kind of request: a process constraint embedded inside a larger
 prompt is not reliably followed. Next time, I would use separate prompts from
-the beginning—one for analysis with implementation explicitly prohibited, and
+the beginning. One for analysis with implementation explicitly prohibited, and
 a second implementation prompt sent only after I have reviewed and approved
 the proposal. That creates an actual checkpoint instead of relying on the
 model to stop itself mid-task.
