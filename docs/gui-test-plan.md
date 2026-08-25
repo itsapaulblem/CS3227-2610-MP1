@@ -1,4 +1,4 @@
-# FitLog GUI manual test plan (draft)
+# FitLog GUI manual test plan
 
 This plan checks behaviour specific to the JavaFX interface. Command parsing and
 domain behaviour remain covered by `pre-refactor-transcript.md` and the JUnit
@@ -42,8 +42,8 @@ Expected for both submissions:
 
 - The submitted text appears once as a right-aligned blue user bubble.
 - The input field clears after submission.
-- `volume` produces the two-line totals information response; `list` produces
-  no additional response when there are no entries.
+- `volume` produces the totals heading and two total lines; `list` displays
+  `No exercises logged yet.` when there are no entries.
 - The conversation scrolls to the latest message if necessary.
 
 ## 3. Blank input is not submitted
@@ -67,7 +67,8 @@ Expected:
 - `Logged: bench press - 3 sets x 10 reps @ 80kg` is a left-aligned green
   success bubble.
 - The list row is a left-aligned grey information bubble and reads
-  `1. [Strength] bench press - 3 sets x 10 reps @ 80kg`.
+  `1. [Strength] bench press - 3 sets x 10 reps @ 80kg (logged <timestamp>)`,
+  where `<timestamp>` is the locally generated logging time.
 
 ## 5. Validation-error styling
 
@@ -137,5 +138,21 @@ Expected:
 
 ## Completion record
 
-Record the operating system, Java version, date, and pass/fail result for each
-section when executing this plan. Attach a screenshot for any visual mismatch.
+The plan was executed against the packaged `build/libs/fitlog.jar`. Test data
+was kept in isolated directories under `build/gui-manual-test` so it did not
+affect the normal `data/fitlog.txt` file.
+
+- Date: 25 Aug 2026
+- Operating system: Microsoft Windows, version 25H2, build 26200.9168, AMD64
+- Java: Eclipse Temurin OpenJDK 25.0.4+7 LTS, 64-bit
+
+| Scenario | Result | Execution notes |
+| --- | --- | --- |
+| 1. Launch and initial layout | Pass | Verified the `FitLog` title, header and subtitle, full-width scrollable conversation area, bottom composer, two initial information bubbles, placeholder, and initial command-field focus. |
+| 2. Submit with Enter and with Send | Pass | Submitted `volume` with Enter and `list` with **Send**. Each command appeared once as a user message, the field cleared, totals were displayed, and empty `list` displayed `No exercises logged yet.` |
+| 3. Blank input is not submitted | Pass | Confirmed **Send** remained disabled for spaces-only input and Enter added no user or response message. |
+| 4. Success, information, and user-message styling | Pass | Logged and listed bench press. The user messages were right-aligned blue, the log response was left-aligned green, and the timestamped list row was left-aligned grey. |
+| 5. Validation-error styling | Pass | The incomplete squat command produced the expected left-aligned red error. A following `list` confirmed that the invalid command had added no entry. |
+| 6. Personal-record styling | Pass | The first GUI PR Test entry produced no PR. The heavier second entry produced the expected bold gold PR bubble with an amber border. |
+| 7. Malformed-storage warning styling | Pass | Startup displayed greeting, amber line-2 warning, then the normal prompt. `list` retained the valid bench-press entry and omitted the malformed line. |
+| 8. Farewell and automatic close | Pass | `bye` displayed the user and farewell messages, disabled both controls immediately, and closed the window after approximately 1.2 seconds. |
