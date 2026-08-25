@@ -109,7 +109,7 @@ inaccuracies as bugs.
 
 ### GUI test plan and consistency work
 
-> "Update the GUI test plan, manually execute all 8 scenarios, and record OS,
+> "Before editing the code, I have updated the GUI test plan, manually execute all 8 scenarios, and record OS,
 > Java version, date, and results."
 
 > "Make Reflections.md not contradict; I reverted it and prompted again."
