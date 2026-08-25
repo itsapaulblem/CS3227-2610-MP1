@@ -38,5 +38,9 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
 
+      - name: Make Gradle Wrapper executable
+        if: runner.os != 'Windows'
+        run: chmod +x ./gradlew
+
       - name: Run tests and build application JAR
         run: ./gradlew check shadowJar --no-daemon
