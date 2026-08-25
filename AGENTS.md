@@ -3,7 +3,8 @@ This repository contains FitLog, a personal command-line/chat-based workout
 logging application, developed as an individual project for an
 undergraduate software engineering course. The app lets a user log
 strength and cardio workout entries via text commands, view history,
-track personal records, and compute basic stats (e.g. weekly volume).
+track personal records, view exercise progression, and compute strength and
+cardio totals across the complete loaded workout history.
 
 # Default user context
 Unless the user says otherwise, assume you are assisting the student who
@@ -41,7 +42,8 @@ an instructor or other stakeholder, adapt your response to that role.
 * An `ExerciseEntry` is either a strength entry (sets, reps, weight) or
   a cardio entry (duration, distance). Keep these as distinct types
   sharing a common abstraction rather than one class with unused fields.
-* A `WorkoutSession` groups entries logged on the same date.
+* Training statistics use the complete loaded workout history rather than
+  grouping or filtering entries by date.
 * Personal record (PR) detection must compare a new entry against all
   prior entries for the *same exercise name* only.
 

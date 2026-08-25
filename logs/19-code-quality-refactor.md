@@ -74,14 +74,11 @@ quality violation:
 - Unreferenced Java files: 0.
 - Inaccurate current-session terminology: 0.
 - The then-current 56 tests passed with no failures; the later log 13 expansion
-  increased this to 156 passing tests.
+  and empty-list coverage increased this to 157 passing tests.
 
 The audit retained several explicit boundaries rather than presenting them as
 completed work:
 
-- `WorkoutSession` is not modelled, even though the project domain says entries
-  on the same date form a session. It should be introduced with actual grouping
-  behaviour rather than as an unused placeholder.
 - Small local JavaFX spacing values remain inline; major dimensions and timing
   values have descriptive constants.
 - Some command keywords remain in command-specific parsing as well as registry

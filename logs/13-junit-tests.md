@@ -54,15 +54,14 @@ Commit `588dc07` completed the automated regression expansion:
   by focused unit tests.
 
 The overflow failures were fixed by performing strength multiplication as
-`double` and accumulating cardio duration in `long`. The final suite contains
-156 passing test invocations on Java 25.
+`double` and accumulating cardio duration in `long`. Later empty-list coverage
+brought the current suite to 157 passing test invocations on Java 25.
 
 ## Deliberate testing boundary
 
 JavaFX layout, CSS, focus behaviour, and delayed window closure remain covered by
 `docs/gui-test-plan.md` because they require a graphical runtime and visual
-inspection. `WorkoutSession` grouping is also untested because that domain
-feature has not yet been implemented.
+inspection.
 
 ## Prompt record and Codex outcome
 
@@ -75,4 +74,4 @@ feature has not yet been implemented.
 Codex first added the focused domain tests, then audited all production paths
 against the existing suite. It added focused tests for the missing implemented
 behaviour, removed duplication, fixed the two defects exposed by the new boundary
-tests, and verified all 156 tests with Java 25.
+tests, and verified the current 157-test suite with Java 25.
