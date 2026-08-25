@@ -13,3 +13,9 @@ For installation, startup instructions, command syntax, examples, data behavior,
 and troubleshooting, see the [FitLog User Guide](docs/UserGuide.md).
 
 The file at `docs/UserGuide.md` is the only user guide for this project.
+
+## Developer documentation
+
+For the system architecture, design, implementation details, testing approach,
+and software engineering process, see the
+[FitLog Developer Guide](docs/DeveloperGuide.md).
