@@ -91,8 +91,9 @@ The Gradle command removes old build output, runs the tests, and creates
 task. `clean` and `test` are useful build checks, but neither is required every
 time you start FitLog.
 
-The packaged JAR includes JavaFX files for the operating system on which it was
-built. Build the JAR on the same operating system on which you intend to run it.
+The packaged JAR includes the JavaFX native libraries required by 64-bit
+Windows, macOS, and Linux. The same `fitlog.jar` can therefore be built on any
+of those operating systems and run on all three.
 
 ### Start the console command-line interface (optional)
 

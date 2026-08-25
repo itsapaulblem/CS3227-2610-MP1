@@ -206,7 +206,10 @@ entry points differed from the console version.
 `0.1.0`, configures JavaFX `26.0.1`, and enables the `javafx.controls` module.
 The application main class is `fitlog.Launcher`. The separate launcher avoids the
 classpath issues that can occur when the Java launcher is asked to start a JavaFX
-`Application` subclass directly.
+`Application` subclass directly. The runtime dependencies explicitly include the
+Windows, macOS, and Linux JavaFX classifiers. The Shadow JAR consequently bundles
+the native libraries for all three 64-bit operating systems instead of depending
+on the operating system used for the build.
 
 ## Design decisions
 
