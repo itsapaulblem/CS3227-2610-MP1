@@ -1,6 +1,7 @@
 package fitlog;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Executes validated commands against a workout log and persists mutations.
@@ -14,52 +15,52 @@ final class CommandExecutor {
         return true;
     }
 
-    static boolean executeList(WorkoutLog entries, Ui ui) {
-        if (entries.size() == 0) {
+    static boolean executeList(WorkoutLog workoutLog, Ui ui) {
+        if (workoutLog.isEmpty()) {
             ui.showInfo("No exercises logged yet.");
             return false;
         }
 
-        for (int index = 0; index < entries.size(); index++) {
-            ui.showInfo(EntryFormatter.formatListEntry(index + 1, entries.get(index)));
+        for (int index = 0; index < workoutLog.size(); index++) {
+            ui.showInfo(EntryFormatter.formatListEntry(index + 1, workoutLog.get(index)));
         }
         return false;
     }
 
-    static boolean executeDelete(DeleteCommand command, WorkoutLog entries, EntryStorage storage, Ui ui) {
-        ExerciseEntry removedEntry = entries.delete(command.index());
+    static boolean executeDelete(DeleteCommand command, WorkoutLog workoutLog, EntryStorage storage, Ui ui) {
+        ExerciseEntry removedEntry = workoutLog.delete(command.index());
         ui.showSuccess("Removed: " + removedEntry.getName() + " - " + removedEntry.getDetails());
-        saveEntries(storage, entries, ui);
+        saveEntries(storage, workoutLog, ui);
         return false;
     }
 
-    static boolean executeLogStrength(LogStrengthCommand command, WorkoutLog entries,
+    static boolean executeLogStrength(LogStrengthCommand command, WorkoutLog workoutLog,
             EntryStorage storage, Ui ui) {
         StrengthEntry entry = new StrengthEntry(command.name(), command.sets(), command.reps(), command.weightKg());
-        addEntry(entry, entries, storage, ui);
+        addEntry(entry, workoutLog, storage, ui);
         return false;
     }
 
-    static boolean executeLogCardio(LogCardioCommand command, WorkoutLog entries,
+    static boolean executeLogCardio(LogCardioCommand command, WorkoutLog workoutLog,
             EntryStorage storage, Ui ui) {
         CardioEntry entry = new CardioEntry(command.name(), command.durationMinutes(), command.distanceKm());
-        addEntry(entry, entries, storage, ui);
+        addEntry(entry, workoutLog, storage, ui);
         return false;
     }
 
-    /** Performs the behaviour shared by strength and cardio logging. */
-    private static void addEntry(ExerciseEntry entry, WorkoutLog entries, EntryStorage storage, Ui ui) {
-        boolean isPersonalRecord = entries.isPersonalRecord(entry, -1);
-        entries.add(entry);
+    /** Performs the behavior shared by strength and cardio logging. */
+    private static void addEntry(ExerciseEntry entry, WorkoutLog workoutLog, EntryStorage storage, Ui ui) {
+        boolean isPersonalRecord = workoutLog.isPersonalRecord(entry);
+        workoutLog.add(entry);
         ui.showSuccess("Logged: " + entry.getName() + " - " + entry.getDetails());
         if (isPersonalRecord) {
             printPrNotification(entry, ui);
         }
-        saveEntries(storage, entries, ui);
+        saveEntries(storage, workoutLog, ui);
     }
 
-    static boolean executeFind(FindCommand command, WorkoutLog entries, Ui ui) {
-        var matches = entries.findByName(command.searchTerm());
+    static boolean executeFind(FindCommand command, WorkoutLog workoutLog, Ui ui) {
+        List<WorkoutLog.EntryMatch> matches = workoutLog.findByName(command.searchTerm());
         if (matches.isEmpty()) {
             ui.showInfo("No entries match '" + command.searchTerm() + "'.");
             return false;
@@ -70,8 +71,8 @@ final class CommandExecutor {
         return false;
     }
 
-    static boolean executeStats(StatsCommand command, WorkoutLog entries, Ui ui) {
-        var matches = entries.findByExerciseName(command.exerciseName());
+    static boolean executeStats(StatsCommand command, WorkoutLog workoutLog, Ui ui) {
+        List<WorkoutLog.EntryMatch> matches = workoutLog.findByExerciseName(command.exerciseName());
         if (matches.isEmpty()) {
             ui.showInfo("No entries match '" + command.exerciseName() + "'.");
             return false;
@@ -83,34 +84,34 @@ final class CommandExecutor {
         return false;
     }
 
-    static boolean executeVolume(WorkoutLog entries, Ui ui) {
-        WorkoutLog.TrainingTotals totals = entries.calculateTotals();
+    static boolean executeVolume(WorkoutLog workoutLog, Ui ui) {
+        WorkoutLog.TrainingTotals totals = workoutLog.calculateTotals();
         ui.showInfo("Totals for all currently loaded entries:");
         ui.showInfo("Strength volume: " + ExerciseEntry.formatNumber(totals.strengthVolume()) + " kg");
         ui.showInfo("Cardio duration: " + totals.cardioDurationMinutes() + " min");
         return false;
     }
 
-    static boolean executeEdit(EditCommand command, WorkoutLog entries, EntryStorage storage, Ui ui) {
-        ExerciseEntry existingEntry = entries.get(command.index());
+    static boolean executeEdit(EditCommand command, WorkoutLog workoutLog, EntryStorage storage, Ui ui) {
+        ExerciseEntry existingEntry = workoutLog.get(command.index());
         ExerciseEntry updatedEntry = EntryEditor.createUpdatedEntry(
                 existingEntry, command.field(), command.value(), ui);
         if (updatedEntry == null) {
             return false;
         }
-        boolean isPersonalRecord = entries.isPersonalRecord(updatedEntry, command.index());
-        entries.replace(command.index(), updatedEntry);
+        boolean isPersonalRecord = workoutLog.isPersonalRecord(updatedEntry, command.index());
+        workoutLog.replace(command.index(), updatedEntry);
         ui.showSuccess("Updated: " + updatedEntry.getName() + " - " + updatedEntry.getDetails());
         if (isPersonalRecord) {
             printPrNotification(updatedEntry, ui);
         }
-        saveEntries(storage, entries, ui);
+        saveEntries(storage, workoutLog, ui);
         return false;
     }
 
-    private static void saveEntries(EntryStorage storage, WorkoutLog entries, Ui ui) {
+    private static void saveEntries(EntryStorage storage, WorkoutLog workoutLog, Ui ui) {
         try {
-            storage.save(entries.getEntries());
+            storage.save(workoutLog.getEntries());
         } catch (IOException exception) {
             ui.showWarning("Warning: could not save entries: " + exception.getMessage());
         }

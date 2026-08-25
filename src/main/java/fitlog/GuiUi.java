@@ -8,7 +8,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 /**
- * Renders categorised FitLog feedback as styled messages in a conversation view.
+ * Renders categorized FitLog feedback as styled messages in a conversation view.
  */
 public class GuiUi implements Ui {
     private static final double MAXIMUM_MESSAGE_WIDTH = 620;

@@ -12,7 +12,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /**
- * Tests collection-level workout logging, personal-record, and search behaviour.
+ * Tests collection-level workout logging, personal-record, and search behavior.
  */
 class WorkoutLogTest {
 
@@ -64,7 +64,7 @@ class WorkoutLogTest {
         WorkoutLog log = new WorkoutLog();
         StrengthEntry candidate = new StrengthEntry("bench press", 3, 10, 80.0);
 
-        assertFalse(log.isPersonalRecord(candidate, -1));
+        assertFalse(log.isPersonalRecord(candidate));
     }
 
     @Test
@@ -73,7 +73,7 @@ class WorkoutLogTest {
         log.add(new StrengthEntry("bench press", 3, 10, 80.0));
         StrengthEntry candidate = new StrengthEntry("bench press", 3, 8, 82.5);
 
-        assertTrue(log.isPersonalRecord(candidate, -1));
+        assertTrue(log.isPersonalRecord(candidate));
     }
 
     @Test
@@ -81,7 +81,7 @@ class WorkoutLogTest {
         WorkoutLog log = new WorkoutLog();
         log.add(new CardioEntry("run", 30, 5.0));
 
-        assertTrue(log.isPersonalRecord(new CardioEntry("RUN", 45, null), -1));
+        assertTrue(log.isPersonalRecord(new CardioEntry("RUN", 45, null)));
     }
 
     @Test
@@ -89,8 +89,8 @@ class WorkoutLogTest {
         WorkoutLog log = new WorkoutLog();
         log.add(new CardioEntry("run", 30, 5.0));
 
-        assertFalse(log.isPersonalRecord(new CardioEntry("run", 30, 6.0), -1));
-        assertFalse(log.isPersonalRecord(new CardioEntry("run", 20, 6.0), -1));
+        assertFalse(log.isPersonalRecord(new CardioEntry("run", 30, 6.0)));
+        assertFalse(log.isPersonalRecord(new CardioEntry("run", 20, 6.0)));
     }
 
     @Test
@@ -99,7 +99,7 @@ class WorkoutLogTest {
         log.add(new StrengthEntry("bench press", 3, 10, 80.0));
         StrengthEntry candidate = new StrengthEntry("bench press", 4, 6, 80.0);
 
-        assertFalse(log.isPersonalRecord(candidate, -1));
+        assertFalse(log.isPersonalRecord(candidate));
     }
 
     @Test
@@ -108,7 +108,7 @@ class WorkoutLogTest {
         log.add(new StrengthEntry("bench press", 3, 10, 80.0));
         StrengthEntry candidate = new StrengthEntry("bench press", 3, 12, 70.0);
 
-        assertFalse(log.isPersonalRecord(candidate, -1));
+        assertFalse(log.isPersonalRecord(candidate));
     }
 
     @Test
@@ -117,7 +117,7 @@ class WorkoutLogTest {
         log.add(new StrengthEntry("Bench   Press", 3, 10, 80.0));
         StrengthEntry candidate = new StrengthEntry(" bench press ", 3, 8, 82.5);
 
-        assertTrue(log.isPersonalRecord(candidate, -1));
+        assertTrue(log.isPersonalRecord(candidate));
     }
 
     @Test
@@ -126,7 +126,7 @@ class WorkoutLogTest {
         log.add(new StrengthEntry("squat", 3, 5, 100.0));
         StrengthEntry candidate = new StrengthEntry("bench press", 3, 10, 80.0);
 
-        assertFalse(log.isPersonalRecord(candidate, -1));
+        assertFalse(log.isPersonalRecord(candidate));
     }
 
     @Test
@@ -135,7 +135,7 @@ class WorkoutLogTest {
         log.add(new CardioEntry("run", 30, 5.0));
         StrengthEntry candidate = new StrengthEntry("run", 3, 10, 80.0);
 
-        assertFalse(log.isPersonalRecord(candidate, -1));
+        assertFalse(log.isPersonalRecord(candidate));
     }
 
     @Test
@@ -167,12 +167,12 @@ class WorkoutLogTest {
     }
 
     @Test
-    void personalRecordRejectsExclusionIndexBelowLoggingSentinel() {
+    void personalRecordRejectsNegativeExclusionIndex() {
         WorkoutLog log = new WorkoutLog();
         StrengthEntry candidate = new StrengthEntry("bench press", 3, 10, 80.0);
 
         assertThrows(IllegalArgumentException.class,
-                () -> log.isPersonalRecord(candidate, -2));
+                () -> log.isPersonalRecord(candidate, -1));
     }
 
     @Test

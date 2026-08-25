@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Tests timestamp behaviour at the controller boundary, including displayed output.
+ * Tests timestamp behavior at the controller boundary, including displayed output.
  */
 class FitLogControllerTest {
 
@@ -72,7 +72,12 @@ class FitLogControllerTest {
 
         controller.submit("help");
 
-        assertEquals(List.of(
+        assertEquals(expectedHelpMessages(), ui.messages());
+        assertTrue(java.nio.file.Files.notExists(file));
+    }
+
+    private static List<String> expectedHelpMessages() {
+        return List.of(
                 "log strength <name> /sets <n> /reps <n> /weight <kg>",
                 "Example: log strength bench press /sets 3 /reps 10 /weight 80",
                 "log cardio <name> /duration <min> [/distance <km>]",
@@ -93,8 +98,7 @@ class FitLogControllerTest {
                 "help",
                 "Example: help",
                 "bye",
-                "Example: bye"), ui.messages());
-        assertTrue(java.nio.file.Files.notExists(file));
+                "Example: bye");
     }
 
     @Test

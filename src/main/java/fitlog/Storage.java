@@ -5,9 +5,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,9 +83,9 @@ public class Storage implements EntryStorage {
         String[] fields = line.split("\\t", -1);
         try {
             return switch (fields[0]) {
-            case "strength" -> parseStrengthEntry(fields);
-            case "cardio" -> parseCardioEntry(fields);
-            default -> null;
+                case "strength" -> parseStrengthEntry(fields);
+                case "cardio" -> parseCardioEntry(fields);
+                default -> null;
             };
         } catch (IllegalArgumentException | DateTimeParseException exception) {
             return null;

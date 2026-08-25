@@ -14,7 +14,7 @@ public final class CardioEntry extends ExerciseEntry {
      *
      * @param name the exercise name
      * @param durationMinutes the exercise duration in minutes
-     * @param distanceKm the distance in kilometres, or {@code null} when not recorded
+     * @param distanceKm the distance in kilometers, or {@code null} when not recorded
      * @throws IllegalArgumentException if any exercise value is invalid
      */
     public CardioEntry(String name, int durationMinutes, Double distanceKm) {
@@ -26,7 +26,7 @@ public final class CardioEntry extends ExerciseEntry {
      *
      * @param name the exercise name
      * @param durationMinutes the exercise duration in minutes
-     * @param distanceKm the distance in kilometres, or {@code null} when not recorded
+     * @param distanceKm the distance in kilometers, or {@code null} when not recorded
      * @param loggedAt the local logging time, or {@code null} for a legacy entry
      * @throws IllegalArgumentException if the name is blank, the duration is not
      *                                  positive, or a supplied distance is not finite and positive
@@ -58,9 +58,9 @@ public final class CardioEntry extends ExerciseEntry {
     }
 
     /**
-     * Returns the distance in kilometres, if it was recorded.
+     * Returns the distance in kilometers, if it was recorded.
      *
-     * @return the distance in kilometres, or {@code null} when not recorded
+     * @return the distance in kilometers, or {@code null} when not recorded
      */
     public Double getDistanceKm() {
         return distanceKm;

@@ -1,7 +1,7 @@
 package fitlog;
 
 /**
- * Receives categorised feedback from FitLog operations.
+ * Receives categorized feedback from FitLog operations.
  */
 public interface Ui {
     /**

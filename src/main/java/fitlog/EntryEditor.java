@@ -29,18 +29,18 @@ final class EntryEditor {
 
     private static StrengthEntry updateStrengthEntry(StrengthEntry entry, String field, String value, Ui ui) {
         return switch (field) {
-        case "/sets" -> withSets(entry, value, ui);
-        case "/reps" -> withReps(entry, value, ui);
-        case "/weight" -> withWeight(entry, value, ui);
-        default -> throw new IllegalArgumentException("Unsupported strength field: " + field);
+            case "/sets" -> withSets(entry, value, ui);
+            case "/reps" -> withReps(entry, value, ui);
+            case "/weight" -> withWeight(entry, value, ui);
+            default -> throw new IllegalArgumentException("Unsupported strength field: " + field);
         };
     }
 
     private static CardioEntry updateCardioEntry(CardioEntry entry, String field, String value, Ui ui) {
         return switch (field) {
-        case "/duration" -> withDuration(entry, value, ui);
-        case "/distance" -> withDistance(entry, value, ui);
-        default -> throw new IllegalArgumentException("Unsupported cardio field: " + field);
+            case "/duration" -> withDuration(entry, value, ui);
+            case "/distance" -> withDistance(entry, value, ui);
+            default -> throw new IllegalArgumentException("Unsupported cardio field: " + field);
         };
     }
 

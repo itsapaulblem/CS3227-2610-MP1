@@ -14,8 +14,8 @@ final class CommandParser {
     private CommandParser() {
     }
 
-    /** Reports the most specific error available for an unrecognised command. */
-    static void reportUnrecognisedCommand(String command, Ui ui) {
+    /** Reports the most specific error available for an unrecognized command. */
+    static void reportUnrecognizedCommand(String command, Ui ui) {
         if (command.equals("log")) {
             ui.showError("Choose an exercise type after 'log': strength or cardio.");
         } else if (command.startsWith("log ")) {
@@ -26,7 +26,7 @@ final class CommandParser {
         }
     }
 
-    static FindCommand parseFindCommand(String command, WorkoutLog entries, Ui ui) {
+    static FindCommand parseFindCommand(String command, Ui ui) {
         String searchTerm = command.substring("find".length()).trim();
         if (searchTerm.isEmpty()) {
             ui.showError("Specify a search term to find.");
@@ -35,7 +35,7 @@ final class CommandParser {
         return new FindCommand(searchTerm);
     }
 
-    static StatsCommand parseStatsCommand(String command, WorkoutLog entries, Ui ui) {
+    static StatsCommand parseStatsCommand(String command, Ui ui) {
         String exerciseName = command.substring("stats".length()).trim();
         if (exerciseName.isEmpty()) {
             ui.showError("Specify an exercise name to view stats.");
@@ -44,8 +44,8 @@ final class CommandParser {
         return new StatsCommand(exerciseName);
     }
 
-    static DeleteCommand parseDeleteCommand(String command, WorkoutLog entries, Ui ui) {
-        if (entries.isEmpty()) {
+    static DeleteCommand parseDeleteCommand(String command, WorkoutLog workoutLog, Ui ui) {
+        if (workoutLog.isEmpty()) {
             ui.showError("There are no entries to delete.");
             return null;
         }
@@ -60,24 +60,24 @@ final class CommandParser {
             return null;
         }
 
-        Integer index = parseEntryIndex(parts[1], entries.size(), ui);
+        Integer index = parseEntryIndex(parts[1], workoutLog.size(), ui);
         return index == null ? null : new DeleteCommand(index);
     }
 
-    static EditCommand parseEditCommand(String command, WorkoutLog entries, Ui ui) {
-        if (entries.isEmpty()) {
+    static EditCommand parseEditCommand(String command, WorkoutLog workoutLog, Ui ui) {
+        if (workoutLog.isEmpty()) {
             ui.showError("There are no entries to edit.");
             return null;
         }
 
         String[] parts = command.split("\\s+");
-        Integer index = parseEditIndex(parts, entries.size(), ui);
+        Integer index = parseEditIndex(parts, workoutLog.size(), ui);
         if (index == null || !hasValidEditArguments(parts, ui)) {
             return null;
         }
 
         String field = parts[2];
-        ExerciseEntry existingEntry = entries.get(index);
+        ExerciseEntry existingEntry = workoutLog.get(index);
         if (!isValidEditField(existingEntry, field, index, ui)) {
             return null;
         }
@@ -127,7 +127,7 @@ final class CommandParser {
         return true;
     }
 
-    static LogStrengthCommand parseLogStrengthCommand(String command, WorkoutLog entries, Ui ui) {
+    static LogStrengthCommand parseLogStrengthCommand(String command, Ui ui) {
         LogDetails details = parseLogDetails(command, "log strength", "strength", STRENGTH_FIELDS,
                 "/sets, /reps, and /weight", ui);
         if (details == null) {
@@ -146,7 +146,7 @@ final class CommandParser {
         return new LogStrengthCommand(details.name(), sets, reps, weightKg);
     }
 
-    static LogCardioCommand parseLogCardioCommand(String command, WorkoutLog entries, Ui ui) {
+    static LogCardioCommand parseLogCardioCommand(String command, Ui ui) {
         LogDetails details = parseLogDetails(command, "log cardio", "cardio", CARDIO_FIELDS,
                 "/duration and optional /distance", ui);
         if (details == null) {

@@ -62,7 +62,7 @@ public class WorkoutLog {
     /**
      * Checks whether the workout history contains no entries.
      *
-     * @return whether the session is empty
+     * @return whether the workout history is empty
      */
     public boolean isEmpty() {
         return entries.isEmpty();
@@ -97,17 +97,17 @@ public class WorkoutLog {
 
     /**
      * Finds entries with the specified exercise name after applying the same
-     * normalisation used for personal-record comparison.
+     * normalization used for personal-record comparison.
      *
      * @param name the exercise name to match
      * @return matching entries paired with their one-based positions in logging order
      */
     public List<EntryMatch> findByExerciseName(String name) {
-        String normalisedName = normaliseExerciseName(name);
+        String normalizedName = normalizeExerciseName(name);
         List<EntryMatch> matches = new ArrayList<>();
         for (int index = 0; index < entries.size(); index++) {
             ExerciseEntry entry = entries.get(index);
-            if (normaliseExerciseName(entry.getName()).equals(normalisedName)) {
+            if (normalizeExerciseName(entry.getName()).equals(normalizedName)) {
                 matches.add(new EntryMatch(index + 1, entry));
             }
         }
@@ -134,25 +134,39 @@ public class WorkoutLog {
     }
 
     /**
-     * Checks whether a candidate strictly improves on every other matching entry.
+     * Checks whether a newly logged candidate strictly improves on every matching entry.
      *
-     * @param candidate the entry being logged or edited
-     * @param excludedIndex the entry to exclude during an edit, or {@code -1} when logging
+     * @param candidate the entry being logged
      * @return whether the candidate is a new personal record
-     * @throws IllegalArgumentException if the exclusion index is neither {@code -1}
-     *                                  nor the index of an existing entry
+     */
+    public boolean isPersonalRecord(ExerciseEntry candidate) {
+        return isPersonalRecordExcluding(candidate, null);
+    }
+
+    /**
+     * Checks whether an edited candidate strictly improves on every other matching entry.
+     *
+     * @param candidate the edited entry
+     * @param excludedIndex the zero-based index of the entry being replaced
+     * @return whether the candidate is a new personal record
+     * @throws IllegalArgumentException if the exclusion index does not refer to an existing entry
      */
     public boolean isPersonalRecord(ExerciseEntry candidate, int excludedIndex) {
-        if (excludedIndex < -1 || excludedIndex >= entries.size()) {
-            throw new IllegalArgumentException(
-                    "Excluded PR index must be -1 or refer to an existing entry.");
+        if (excludedIndex < 0 || excludedIndex >= entries.size()) {
+            throw new IllegalArgumentException("Excluded PR index must refer to an existing entry.");
         }
+        return isPersonalRecordExcluding(candidate, excludedIndex);
+    }
+
+    /** Performs personal-record comparison with an optional entry excluded. */
+    private boolean isPersonalRecordExcluding(ExerciseEntry candidate, Integer excludedIndex) {
         boolean hasPriorMatchingEntry = false;
-        String candidateName = normaliseExerciseName(candidate.getName());
+        String candidateName = normalizeExerciseName(candidate.getName());
         for (int index = 0; index < entries.size(); index++) {
             ExerciseEntry existingEntry = entries.get(index);
-            if (index == excludedIndex || existingEntry.getClass() != candidate.getClass()
-                    || !normaliseExerciseName(existingEntry.getName()).equals(candidateName)) {
+            boolean isExcludedEntry = excludedIndex != null && index == excludedIndex;
+            if (isExcludedEntry || existingEntry.getClass() != candidate.getClass()
+                    || !normalizeExerciseName(existingEntry.getName()).equals(candidateName)) {
                 continue;
             }
             hasPriorMatchingEntry = true;
@@ -166,10 +180,10 @@ public class WorkoutLog {
     /**
      * Converts an exercise name into a consistent comparison key.
      *
-     * @param name the exercise name to normalise
-     * @return a trimmed, whitespace-normalised, lowercase comparison key
+     * @param name the exercise name to normalize
+     * @return a trimmed, whitespace-normalized, lowercase comparison key
      */
-    private String normaliseExerciseName(String name) {
+    private String normalizeExerciseName(String name) {
         return name.trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
     }
 
