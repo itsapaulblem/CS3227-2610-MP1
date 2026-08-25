@@ -5,6 +5,38 @@
 FitLog is organised into console and JavaFX entry points over a shared controller
 and domain layer:
 
+```mermaid
+flowchart LR
+    User((User))
+
+    UI["User Interface<br/>CLI or JavaFX"]
+    Processing["Command Processing<br/>parse, validate and execute"]
+    Model["Workout Model<br/>history, PRs, progression and totals"]
+    Persistence["Persistence<br/>load and save workout history"]
+    File[("data/fitlog.txt")]
+
+    User -->|enters commands| UI
+    UI -->|submits commands| Processing
+    Processing -->|sends feedback| UI
+    UI -->|displays responses| User
+    Processing -->|queries and updates| Model
+    Processing -->|requests load and save| Persistence
+    Persistence -->|reads and writes| File
+```
+
+*Figure 1. FitLog architecture diagram. Arrows show which component initiates
+each runtime interaction.*
+
+The User Interface component is implemented by the CLI (`FitLog` and
+`ConsoleUi`) or JavaFX interface (`Launcher`, `FitLogGui`, and `GuiUi`). Both
+interfaces submit commands to the same Command Processing component, which
+contains `FitLogController`, `CommandRegistry`, `CommandParser`, and
+`CommandExecutor`. Command processing sends categorised feedback through `Ui`,
+queries and modifies the `WorkoutLog` model, and accesses persistence through
+the `EntryStorage` abstraction. The production `Storage` implementation reads
+and replaces `data/fitlog.txt`. This separation allows either interface to reuse
+the same command behaviour and allows tests to substitute non-file storage.
+
 - `FitLog` is the console entry point. It reads console commands and passes them
   to a controller until the user exits or input ends.
 - `Launcher` is the plain Java entry point used by Gradle's `run` task. It calls
@@ -60,6 +92,85 @@ dispatches its registered executor. Command behaviour uses `WorkoutLog` for
 collection operations, `EntryStorage` for successful mutations, and `Ui` for
 categorised feedback. Production supplies the file-backed `Storage`, while tests
 can substitute an in-memory implementation or precise failure test double.
+
+### Command submission and persistence
+
+Figure 2 follows one specific successful scenario: the user submits a valid
+strength command in the JavaFX interface, the new entry establishes a personal
+record, and persistence succeeds. The CLI joins the same interaction at
+`FitLogController.submit(String)`; only the initial input and final rendering
+differ.
+
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    activationBkgColor: "#f8fafc"
+    activationBorderColor: "#64748b"
+---
+sequenceDiagram
+    actor User
+    participant GUI as gui:FitLogGui
+    participant UI as ui:GuiUi
+    participant Controller as controller:FitLogController
+    participant Registry as registry:CommandRegistry
+    participant Parser as CommandParser
+    participant Executor as CommandExecutor
+    participant Log as workoutLog:WorkoutLog
+    participant Storage as storage:Storage
+    participant File as data/fitlog.txt
+
+    User->>+GUI: submit strength command
+    GUI->>+UI: showUserCommand(input)
+    UI-->>-GUI: displayed
+
+    GUI->>+Controller: submit(input)
+    Controller->>+Registry: parse(input, workoutLog, ui)
+    Registry->>+Parser: parseLogStrengthCommand(input, ...)
+    Parser-->>-Registry: command:LogStrengthCommand
+    Registry-->>-Controller: command
+
+    Controller->>+Registry: execute(command, workoutLog, storage, ui)
+    Registry->>+Executor: executeLogStrength(command, ...)
+
+    Note right of Executor: Creates a validated StrengthEntry
+
+    Executor->>+Log: isPersonalRecord(entry, -1)
+    Log-->>-Executor: true
+    Executor->>+Log: add(entry)
+    Log-->>-Executor: completed
+
+    Executor->>+UI: showSuccess(...)
+    UI-->>-Executor: displayed
+    Executor->>+UI: showPersonalRecord(...)
+    UI-->>-Executor: displayed
+
+    Executor->>+Log: getEntries()
+    Log-->>-Executor: read-only entry list
+    Executor->>+Storage: save(entries)
+    Storage->>File: write temporary file and replace target
+    File-->>Storage: completed
+    Storage-->>-Executor: completed
+
+    Executor-->>-Registry: false
+    Registry-->>-Controller: false
+    Controller-->>-GUI: false
+    GUI-->>-User: responses remain displayed
+```
+
+*Figure 2. Sequence diagram for a successful strength log that creates a PR and
+is saved to disk.*
+
+Lifelines written as `object:Class` denote runtime objects. `CommandParser` and
+`CommandExecutor` are shown by class name because their registered operations
+are static. Solid arrows represent method calls and dashed arrows represent
+returns. The `false` return value propagates to `FitLogGui` to indicate that the
+interaction should continue; only `bye` returns `true`. The executor updates the
+in-memory log and displays success and PR feedback before saving the complete
+read-only entry list. If saving instead throws an `IOException`, the in-memory
+change remains and the executor reports a warning through `Ui`; that alternative
+is described here rather than adding another scenario to this sequence diagram.
 
 ### GUI reuse after the controller refactor
 
