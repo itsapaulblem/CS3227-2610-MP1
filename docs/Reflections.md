@@ -29,16 +29,17 @@ asked Codex to propose how a PR should be defined for strength and cardio
 exercises, without writing any code, covering how names should be
 matched, whether editing should trigger re-evaluation.
 
-After reviewing its proposals, I decided: strength PRs use heaviest
-weight, cardio PRs use longest duration; a new value must be *strictly*
-greater (a tie is not a PR); a first-ever entry for an exercise is never a
-PR; names are matched after trimming, collapsing whitespace, and
-case-folding; editing an entry re-checks PR status, excluding that entry
-from its own comparison; PR status is computed from history on demand,
-never stored on an entry. Only then did I ask Codex to implement it.
+After reviewing its proposals, I defined the rules more precisely.
+Strength PRs use the heaviest weight, while cardio PRs use the longest
+duration. A new value must be *strictly* greater, so a tie is not a PR. A
+first-ever entry for an exercise is never a PR. Names are compared after
+trimming, collapsing whitespace, and ignoring letter case. Editing an
+entry re-checks PR status without comparing that entry against itself. PR
+status is calculated from the current history rather than permanently
+stored on an entry. Only then did I ask Codex to implement it.
 
-**Why formulated this way.** "Personal record" has no single meaning: a
-strength PR could be weight, reps, or volume; a cardio PR could be
+**Why formulated this way.** "Personal record" has no single meaning. A
+strength PR could be weight, reps, or volume, while a cardio PR could be
 duration, distance, or pace. If I'd simply asked Codex to "implement
 personal records," it would have picked one of these on my behalf, and I
 might not have caught behaviour I didn't actually want. Separating the
@@ -47,9 +48,12 @@ using AI to explore the space of options quickly.
 
 **What the LLM assumed.** Codex proposed plausible metrics, but they were
 assumptions, not requirements. It could identify *possible* domain rules
-but not which one was correct for FitLog. It also raised the
-stored versus computed question for PR status; I chose computed on demand
-specifically so deleting a former PR-holder cannot leave stale state.
+but not which one was correct for FitLog. Codex also asked whether FitLog
+should save a permanent personal-record label on an entry or compare the
+current workout history whenever a user logs or edits an entry. I chose the
+second approach. If the previous best entry is deleted, the next comparison
+uses only the entries that remain, so FitLog cannot rely on an outdated PR
+label.
 
 **How the prompt evolved.** It moved from a broad "how should a PR be defined"
 question to a precise specification of a PR, only becoming an implementation request after
@@ -108,7 +112,7 @@ Without this, piped or redirected input reaching EOF throws
 Several increments later, I asked Codex to add `delete`/`edit` commands.
 That rewrite reintroduced `scanner.nextLine().trim()` with no guard at
 all. The already implemented, already verified EOF handling was silently
-dropped. Nothing in Codex's summary of the change flagged this; I only
+dropped. Nothing in Codex's summary of the change flagged this. I only
 caught it by re-reading `main()` against the earlier version and testing
 with piped input.
 
@@ -116,7 +120,7 @@ with piped input.
 course material (lecture) warns about directly: an LLM can implement something
 correctly, then quietly regress it during later, seemingly unrelated
 work, without announcing that a previously-solved concern reappeared. The
-delete/edit diff looked reasonable in isolation; nothing about it read as
+delete/edit diff looked reasonable in isolation. Nothing about it read as
 "this removes error handling" unless compared against the prior version
 specifically.
 
@@ -125,7 +129,7 @@ standard practice: later refactors (the `Ui`/`WorkoutLog`/`Command`
 extraction, the GUI `Ui`-interface change) were verified against a full
 written regression transcript (`docs/pre-refactor-transcript.md`) after
 every step, not just the new feature. This was not solely a reaction to
-this bug; the later refactors touched multiple classes and were
+this bug. The later refactors touched multiple classes and were
 inherently more regression-prone. But this incident is why I stopped
 trusting "the new feature works" as sufficient verification and started
 checking that everything previously working still worked too.
@@ -135,8 +139,8 @@ checking that everything previously working still worked too.
 ## Example 3: An LLM Skipping an Explicit "Propose, Don't Implement Yet" Instruction
 
 **Context.** For error handling on `log strength`/`log cardio`, I gave
-Codex a two-part instruction: enumerate edge cases and propose messages
-first; do not implement anything yet, I want to review the list first.
+Codex a two-part instruction. It should enumerate edge cases and propose
+messages first. It should wait for my review before implementing anything.
 Codex skipped the review gate entirely and directly implemented
 field-aware validation across `FitLog`, describing the change only after
 the fact.
@@ -150,7 +154,7 @@ loop before code changes happen. If the LLM collapses that gate whenever
 it judges the implementation "straightforward enough," the reviewer has
 to actively notice a two part instruction got executed as one, rather
 than trusting it was honoured. This is a harder failure to catch than a
-regression, because nothing about the output looks wrong on its own; it
+regression, because nothing about the output looks wrong on its own. It
 is only wrong relative to the process I asked for. On review, the
 validation it produced was actually solid, catching cases like integer
 overflow and NaN that were not on my own list. But good output does not
