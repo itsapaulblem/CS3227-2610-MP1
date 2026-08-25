@@ -157,15 +157,17 @@ overflow and NaN that were not on my own list. But good output does not
 retroactively justify skipping the checkpoint, since the entire point was
 to let me catch a bad proposal before it became code.
 
-**What I did.** I noted the skipped instruction but reviewed the
-implementation on its merits rather than reverting it, since the coverage
-was genuinely good. But it changed how I structure this kind of request
-going forward: a process constraint embedded inside a larger prompt is
-not reliably followed. Next time, I would split it into two separate
-prompts, one that only asks for analysis with implementation explicitly
-prohibited, and a second, separate implementation prompt sent only after
-I have reviewed and approved the first response. That creates an actual
-checkpoint instead of relying on the model to stop itself mid-task.
+**What I did.** I reverted the unapproved implementation and repeated the
+request with a clearer constraint: "Do not implement anything yet." On the
+second attempt, Codex stopped after producing an error table. I reviewed that
+table, decided which validation rules and messages to accept, and only then
+sent a separate prompt authorising implementation. This changed how I
+structure this kind of request: a process constraint embedded inside a larger
+prompt is not reliably followed. Next time, I would use separate prompts from
+the beginning—one for analysis with implementation explicitly prohibited, and
+a second implementation prompt sent only after I have reviewed and approved
+the proposal. That creates an actual checkpoint instead of relying on the
+model to stop itself mid-task.
 
 ---
 

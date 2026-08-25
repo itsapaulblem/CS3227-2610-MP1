@@ -35,6 +35,9 @@ introduced shared `parseLogDetails`/`LogDetails` parsing, and moved
 > "Implement error handling for the cases we discussed ... Keep them specific
 > enough that the user knows exactly what to fix."
 
-Codex produced the error table for review, then implemented the approved
-messages. A later follow-up removed duplicated parsing/formatting and restored
-EOF handling through shared helpers.
+Initially, Codex implemented the validation immediately despite my instruction
+not to make code changes. I reverted the changes and repeated the prompt with a
+clearer constraint: “Do not implement anything yet.” On the second attempt,
+Codex produced an error table for my review and implemented only the messages I
+approved. A later follow-up removed duplicated parsing and formatting logic and
+restored graceful EOF handling through shared helper methods.
