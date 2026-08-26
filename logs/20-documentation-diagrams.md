@@ -146,3 +146,10 @@ This work changed documentation and verification records only. It did not alter
 FitLog's runtime behaviour. The repository now presents a consistent product
 scope, an executed GUI test record, current automated-test evidence, and visual
 design documentation that corresponds to the implemented system.
+
+## Acceptance condition
+
+I accepted the documentation changes only after the reflection and logs agreed,
+the stated product scope matched the code, all eight GUI scenarios and 157
+automated tests were recorded as passing, and both diagrams were checked against
+the implementation and reviewed for readability.

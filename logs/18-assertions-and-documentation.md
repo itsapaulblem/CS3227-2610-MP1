@@ -49,3 +49,9 @@ JavaFX desktop personal utility, distinct from a to-do manager, with 36 passing
 tests at that stage. It also correctly flagged the mandatory reflection document
 and complete summary logs as submission work rather than application-feature
 defects.
+
+## Acceptance condition
+
+I accepted this preparation work only after the assertions left user-facing
+validation unchanged, the then-current test suite passed, the guides matched the
+implemented product, and `shadowJar` produced the runnable JavaFX JAR.

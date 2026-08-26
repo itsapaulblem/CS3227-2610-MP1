@@ -33,3 +33,9 @@ applicable. The implementation is recorded in `6f5965a`.
 The student specifically asked, "so a pr for strength is only heaviest weight?"
 and confirmed that rule. Codex implemented on-demand collection scanning and
 demonstrated first, higher, tied, and edited entries.
+
+## Acceptance condition
+
+I accepted PR detection only after the examples confirmed no PR for a first
+entry, a PR for a strictly higher value, no PR for a tie, normalized same-name
+matching, and correct rechecking on edit while excluding the edited entry.

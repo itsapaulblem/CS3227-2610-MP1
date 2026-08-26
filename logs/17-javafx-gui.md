@@ -58,3 +58,10 @@ The pasted history includes the later GUI-testing response:
 
 That response is why GUI verification remains a documented manual test plan
 rather than a late TestFX dependency.
+
+## Acceptance condition
+
+I accepted the GUI implementation only after the console transcript remained
+unchanged, the shared controller handled both interfaces, and visual review
+confirmed the focused layout and the corrected delayed close after `bye`, while
+leaving the full GUI scenarios to the documented manual plan.

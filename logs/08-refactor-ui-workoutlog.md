@@ -35,3 +35,9 @@ remained unchanged.
 
 Codex created the transcript and made the two extractions without changing the
 printed console text. The student then requested the list-accessor cleanup.
+
+## Acceptance condition
+
+I accepted each extraction only after replaying the regression transcript and
+confirming that moving UI and workout-log responsibilities, including PR logic,
+did not change the existing console output or behaviour.

@@ -31,3 +31,9 @@ and the root README were updated to distinguish current timestamps from the
 future date-range-filtering feature. New JUnit tests cover timestamp display,
 legacy entries, and storage round trips. `./gradlew.bat test --no-daemon` passed
 with 39 tests and no failures.
+
+## Acceptance condition
+
+I accepted timestamps only after tests confirmed the displayed format, edit-time
+preservation, legacy-entry handling, and storage round trips, with all 39 tests
+at that stage passing without failure.

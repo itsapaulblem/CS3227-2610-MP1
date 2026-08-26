@@ -32,3 +32,9 @@ JavaFX interface. They also requested that unrecognised commands direct users to
 matching, and that `help` does not create a storage file. The Java 25 Gradle test
 suite and `git diff --check` passed. The console help and capitalised `Help`
 scenario was replayed against the updated transcript.
+
+## Acceptance condition
+
+I accepted `help` only after the exact output matched the implemented commands
+and User Guide, case sensitivity and no-save behaviour were tested, the console
+transcript was replayed, and the Java 25 suite and diff check passed.

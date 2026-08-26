@@ -32,3 +32,9 @@ dependency. The test task subsequently ran successfully.
 The student later supplied the actual SSL and JUnit Platform errors from the
 terminal. Codex diagnosed them from the output, suggested certificate/daemon
 checks, and the configuration gained the JUnit Platform launcher dependency.
+
+## Acceptance condition
+
+I accepted the build migration only after Gradle used the Java 25 toolchain, the
+code compiled under the `fitlog` package, the JUnit Platform launcher issue was
+resolved, and the test task completed successfully without changing behaviour.

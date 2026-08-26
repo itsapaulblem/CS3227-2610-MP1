@@ -34,3 +34,9 @@ transcript case verified `82.55 kg` formatting. Commits: `6e09d41` and
 The student later asked to move volume logic where it could be unit tested.
 Codex moved it into `WorkoutLog` and added tests for strength-only, cardio-only,
 mixed, empty, and decimal-volume logs.
+
+## Acceptance condition
+
+I accepted statistics and totals only after they used the complete loaded
+history, did not trigger persistence, and the tests covered strength-only,
+cardio-only, mixed, empty, and decimal-volume cases.

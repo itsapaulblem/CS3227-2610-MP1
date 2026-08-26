@@ -35,3 +35,9 @@ The feature was committed as `e1a33ea`.
 The student selected real positions. Codex added `FindCommand`, parser feedback
 for an empty term, and `WorkoutLog.findByName`, then demonstrated non-adjacent
 matches, no matches, and empty input.
+
+## Acceptance condition
+
+I accepted `find` only after the examples confirmed case-insensitive substring
+matching, preservation of each result's real list position, correct non-adjacent
+matches, a clear no-match response, and rejection of an empty search term.

@@ -38,3 +38,9 @@ The command-router extraction is recorded in commit `949e761`.
 
 Codex migrated command types in that order and preserved transcript checks. The
 final router unified parser choice and command execution.
+
+## Acceptance condition
+
+I accepted the command migration only after each incremental step preserved the
+regression transcript, validation messages, delete and edit behaviour, and PR
+rechecking, and the final router removed the repeated dispatch blocks.

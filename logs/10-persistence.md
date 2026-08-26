@@ -33,3 +33,9 @@ are reconstructed from whitespace-split tokens. Persistence was committed as
 The follow-up required load warnings after the welcome message and save warnings
 immediately. Codex implemented those behaviours and added transcript scenarios
 for restart persistence and malformed files.
+
+## Acceptance condition
+
+I accepted persistence only after restart scenarios restored saved entries,
+malformed lines were skipped without losing valid data, load warnings appeared
+after the welcome message, and save failures were reported immediately.

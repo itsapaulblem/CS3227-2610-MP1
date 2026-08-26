@@ -17,3 +17,9 @@ repository files before feature work began.
 
 Later work adopted Java 25, Gradle, JavaFX, JUnit, and the `fitlog` package. The
 initial scaffold did not yet include those tools or the final architecture.
+
+## Acceptance condition
+
+I accepted the initial scaffold only after confirming that the intended source
+and documentation directories, `.gitignore`, and root README were present in the
+focused setup commit.

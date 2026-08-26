@@ -99,3 +99,10 @@ Codex first reported the design findings without modifying code. After receiving
 separate implementation requests, it applied each refactor in small commits,
 ran the Java 25 test suite after the increments, and finished with the automated
 checks and explicit limitations recorded above.
+
+## Acceptance condition
+
+I accepted the refactor only after each increment passed the Java 25 regression
+suite, the final checklist had no clear unresolved code-quality violation, all
+56 tests that existed at that stage passed, and the remaining manual GUI
+boundary was stated explicitly.

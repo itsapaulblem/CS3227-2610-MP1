@@ -41,3 +41,10 @@ clearer constraint: “Do not implement anything yet.” On the second attempt,
 Codex produced an error table for my review and implemented only the messages I
 approved. A later follow-up removed duplicated parsing and formatting logic and
 restored graceful EOF handling through shared helper methods.
+
+## Acceptance condition
+
+I accepted the validation change only after reviewing the second prompt's error
+table, approving the user-facing messages, confirming that malformed inputs were
+rejected, and checking that the shared-helper cleanup preserved graceful EOF
+handling.

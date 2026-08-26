@@ -38,3 +38,9 @@ strength-field-on-cardio errors were checked against the console transcript.
 The student chose option (a) for the distance gap: an edit cannot clear an
 existing cardio distance yet. Codex implemented reconstruction and reused the
 log field sets/parsers, then demonstrated the requested outputs.
+
+## Acceptance condition
+
+I accepted edit and delete only after the transcript confirmed immutable entry
+replacement, correct numbering, shared field and type validation, successful
+deletion, and the agreed error when trying to clear an existing cardio distance.

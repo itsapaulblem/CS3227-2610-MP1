@@ -75,3 +75,9 @@ Codex first added the focused domain tests, then audited all production paths
 against the existing suite. It added focused tests for the missing implemented
 behaviour, removed duplication, fixed the two defects exposed by the new boundary
 tests, and verified the current 157-test suite with Java 25.
+
+## Acceptance condition
+
+I accepted the expanded suite only after the production-path audit was addressed,
+redundant tests were removed, the boundary tests exposed and verified both fixes,
+and all 157 test invocations passed on Java 25.

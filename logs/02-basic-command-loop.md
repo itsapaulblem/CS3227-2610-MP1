@@ -35,3 +35,9 @@ produced the documented graceful EOF behaviour.
 > user and shows a `> ` prompt ... Echoes every command except exact `bye` ...
 > Verified by compiling and running it with Java 25 (`javac 25.0.4`). No other
 > classes were added."
+
+## Acceptance condition
+
+I accepted the command loop only after a Java 25 compile-and-run check showed the
+expected greeting and prompt, echoed ordinary input, exited on `bye`, and handled
+EOF gracefully after the follow-up fix.

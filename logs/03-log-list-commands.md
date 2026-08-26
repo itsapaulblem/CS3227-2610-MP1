@@ -47,3 +47,9 @@ output. Measurements and persistence remained deferred.
 
 The pasted history also records testing with `bench press`, `squat`, `list`, and
 `bye`.
+
+## Acceptance condition
+
+I accepted the change only after the console transcript showed that
+`bench press` and `squat` could be logged, `list` displayed both entries in
+numbered insertion order, and `bye` still exited normally.

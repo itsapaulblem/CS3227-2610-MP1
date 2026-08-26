@@ -46,3 +46,9 @@ design and placed the type label in `ExerciseEntry.getTypeLabel()`.
 The pasted result lists the changed `ExerciseEntry.java`, `StrengthEntry.java`,
 `CardioEntry.java`, and `FitLog.java`, and preserves strength, cardio, list, and
 cardio-without-distance verification examples.
+
+## Acceptance condition
+
+I accepted the hierarchy only after the approved shorter class names and shared
+abstraction were in place and the examples confirmed strength entries, cardio
+entries with and without distance, and their correct labels in `list` output.
