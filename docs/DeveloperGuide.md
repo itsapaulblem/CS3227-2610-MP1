@@ -208,8 +208,10 @@ The application main class is `fitlog.Launcher`. The separate launcher avoids th
 classpath issues that can occur when the Java launcher is asked to start a JavaFX
 `Application` subclass directly. The runtime dependencies explicitly include the
 Windows, macOS, and Linux JavaFX classifiers. The Shadow JAR consequently bundles
-the native libraries for all three 64-bit operating systems instead of depending
-on the operating system used for the build.
+the native libraries for 64-bit Windows and Linux and for Intel-based macOS
+instead of depending on the operating system used for the build. The task creates
+`build/libs/fitlog.jar`; the verified submission artifact is stored as
+`release/fitlog.jar`.
 
 ## Design decisions
 

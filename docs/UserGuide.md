@@ -15,43 +15,36 @@ In the GUI, user commands are displayed in blue conversation bubbles, while FitL
 
 ### Requirements
 
-Install a Java 25 **JDK**. A JRE alone is not sufficient because Gradle must
-compile the application. Confirm that Java 25 is active:
+Install Java 25 and confirm that it is active:
 
 ```text
 java --version
-javac --version
 ```
 
-Both commands should report version 25. If they report another version, update
-`JAVA_HOME` and your `PATH` before continuing.
+The command should report version 25. If it reports another version, update
+`JAVA_HOME` and your `PATH` before continuing. A Java 25 JDK is required only if
+you intend to build FitLog from source.
 
 Download or clone the FitLog repository, then open a terminal in its project
-root. This is the folder containing `gradlew`, `gradlew.bat`, and
-`build.gradle.kts`. All commands below must be run from this folder.
-
-FitLog includes the Gradle wrapper, so you do not need to install Gradle. The
-wrapper downloads Gradle and the project's dependencies on its first run, which
-can take longer and requires an internet connection.
+root. This is the folder containing the `release` directory. Running FitLog from
+the project root ensures that its data is saved under the project's `data`
+directory.
 
 ### Start the GUI (recommended)
 
-The `run` task compiles and starts FitLog. You do **not** need to run
-`clean`, `test`, or `shadowJar` first.
+The repository includes a ready-to-run JAR at `release/fitlog.jar`. You do not
+need Gradle or an internet connection to launch this packaged release.
 
 #### Windows (PowerShell)
 
 ```powershell
-.\gradlew.bat run
+java --enable-native-access=ALL-UNNAMED -jar release\fitlog.jar
 ```
 
 #### macOS or Linux
 
-The wrapper may need executable permission after the repository is downloaded:
-
 ```bash
-chmod +x gradlew
-./gradlew run
+java --enable-native-access=ALL-UNNAMED -jar release/fitlog.jar
 ```
 
 The GUI has a header, a full-width scrollable conversation view, and a command
@@ -59,41 +52,43 @@ field with a **Send** button. Press Enter or select **Send** to submit a command
 The terminal remains occupied while FitLog is open; this is normal. Enter `bye`
 in FitLog or close its window to return to the terminal.
 
-### Build and run a packaged GUI JAR (optional)
+The packaged JAR contains the JavaFX native libraries required by 64-bit Windows
+and Linux and by Intel-based macOS. The same `release/fitlog.jar` can be used on
+those three platforms.
 
-Use this alternative when you want to run the tests and create a packaged JAR.
-Run the Gradle command first and wait for `BUILD SUCCESSFUL`. Then run the
-separate `java -jar` command.
+### Build from source (optional)
+
+Use this alternative when you want to verify the tests or create the JAR
+yourself. Install a Java 25 JDK and confirm that both `java --version` and
+`javac --version` report version 25. FitLog includes the Gradle wrapper, so a
+separate Gradle installation is not required. The first build requires an
+internet connection to download Gradle and the project dependencies.
 
 #### Windows (PowerShell)
 
 ```powershell
-.\gradlew.bat clean test shadowJar
+.\gradlew.bat clean check shadowJar --no-daemon
 ```
 
 ```powershell
-java -jar build\libs\fitlog.jar
+java --enable-native-access=ALL-UNNAMED -jar build\libs\fitlog.jar
 ```
 
 #### macOS or Linux
 
 ```bash
-./gradlew clean test shadowJar
+chmod +x gradlew
+./gradlew clean check shadowJar --no-daemon
 ```
 
 ```bash
-java -jar build/libs/fitlog.jar
+java --enable-native-access=ALL-UNNAMED -jar build/libs/fitlog.jar
 ```
 
 The Gradle command removes old build output, runs the tests, and creates
 `build/libs/fitlog.jar`. The `java` command then launches that JAR. Do not append
 `java -jar ...` to the Gradle command: it is a different command, not a Gradle
-task. `clean` and `test` are useful build checks, but neither is required every
-time you start FitLog.
-
-The packaged JAR includes the JavaFX native libraries required by 64-bit
-Windows, macOS, and Linux. The same `fitlog.jar` can therefore be built on any
-of those operating systems and run on all three.
+task. Building from source does not replace `release/fitlog.jar` automatically.
 
 ### Start the console command-line interface (optional)
 
@@ -125,6 +120,8 @@ the farewell and exit normally.
 
 ### Setup troubleshooting
 
+- If Java reports `Unable to access jarfile`, confirm that your terminal is in
+  the project root and that `release/fitlog.jar` exists.
 - If Gradle says a task such as `java` or `-jar` does not exist, run the Gradle
   and `java -jar` commands separately as shown above.
 - If a command cannot find `gradlew`, return to the project root. Use
@@ -136,9 +133,9 @@ the farewell and exit normally.
   should report Java 25.
 - If the first build appears to pause while downloading Gradle or dependencies,
   keep the terminal open and check the internet connection.
-- If `run` does not return to the terminal after the GUI opens, FitLog is still
-  running. Submit `bye`; the farewell is displayed and the window closes after
-  about 1.2 seconds.
+- If the `java -jar` command does not return to the terminal after the GUI opens,
+  FitLog is still running. Submit `bye`; the farewell is displayed and the
+  window closes after about 1.2 seconds.
 
 ## Logging a strength exercise
 
