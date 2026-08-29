@@ -52,8 +52,9 @@ field with a **Send** button. Press Enter or select **Send** to submit a command
 The terminal remains occupied while FitLog is open; this is normal. Enter `bye`
 in FitLog or close its window to return to the terminal.
 
-The packaged JAR contains the JavaFX native libraries required by 64-bit Windows, Linux and by MacOS. The same `release/fitlog.jar` can be used on
-those three platforms.
+The packaged JAR contains the JavaFX native libraries required by 64-bit
+Windows, 64-bit Linux, and Apple Silicon macOS. The same `release/fitlog.jar`
+can be used on those three platforms.
 
 ### Build from source (optional)
 

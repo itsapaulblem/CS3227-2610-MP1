@@ -8,7 +8,7 @@ plugins {
 }
 
 val javaFxVersion = "26.0.1"
-val supportedJavaFxPlatforms = listOf("win", "mac", "linux")
+val supportedJavaFxPlatforms = listOf("win", "mac-aarch64", "linux")
 val requiredJavaFxModules = listOf("base", "graphics", "controls")
 
 repositories {
